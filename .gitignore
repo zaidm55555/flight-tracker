@@ -1,0 +1,8 @@
+.venv/
+atlas-credentials.env
+flights_*.json
+flights_*.csv
+*.log
+__pycache__/
+*.pyc
+.DS_Store
