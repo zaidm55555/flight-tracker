@@ -127,7 +127,7 @@ document.querySelectorAll(".flight-card").forEach(function(card){
 card.addEventListener("click",function(){
 var box=card.querySelector(".chart-box");
 if(!box)return;
-var vis=box.style.display!=="none";
+var vis=window.getComputedStyle(box).display!=="none";
 if(!vis){
 box.style.display="block";
 var fid=card.dataset.fid;
