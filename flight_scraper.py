@@ -354,7 +354,7 @@ def main():
     parser.add_argument("-d", "--date", dest="date", required=True, help="Travel date in YYYY-MM-DD format")
     parser.add_argument("-fl", "--flight", dest="flight", default=None, help="Filter by airline or flight number (e.g. IndiGo, 6E 5322)")
     parser.add_argument("-c", "--currency", dest="currency", default="INR", help="Currency code (default: INR)")
-    parser.add_argument("-o", "--output", dest="output", choices=["console", "json", "csv", "all"], default="all", help="Output format (default: all)")
+    parser.add_argument("-o", "--output", dest="output", choices=["console", "json", "csv", "all"], default="console", help="Output format (default: console)")
     parser.add_argument("--save-db", action="store_true", help="Save results to MongoDB")
     parser.add_argument("--headed", action="store_true", help="Run browser in visible mode")
     parser.add_argument("--no-click", action="store_true", help="Skip clicking cards for flight numbers (faster)")
