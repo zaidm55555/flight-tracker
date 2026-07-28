@@ -7,45 +7,93 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="FlightTracker">
-    <meta name="description" content="Track flight prices with live updates and price history charts">
     <link rel="manifest" href="/static/manifest.json">
     <link rel="apple-touch-icon" href="/static/icon-192.png">
-    <title>Flight Price Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>FlightPulse</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #f0f2f5; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; padding: 20px; }
-        .container { max-width: 640px; width: 100%; text-align: center; }
-        .logo { margin-bottom: 40px; }
-        .logo h1 { font-size: 2.8rem; font-weight: 700; color: #1a73e8; letter-spacing: -1px; margin: 0; }
-        .logo p { color: #5f6368; font-size: 0.95rem; margin: 4px 0 0; }
-        .card { background: white; border-radius: 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.1), 0 4px 24px rgba(0,0,0,0.06); padding: 32px; }
-        .search-row { display: flex; gap: 12px; margin-bottom: 16px; }
-        .search-row input { flex: 1; padding: 14px 16px; border: 1px solid #dadce0; border-radius: 12px; font-size: 0.95rem; outline: none; transition: border 0.15s; background: #f8f9fa; }
-        .search-row input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 2px rgba(26,115,232,0.15); }
-        .date-input { width: 100%; padding: 14px 16px; border: 1px solid #dadce0; border-radius: 12px; font-size: 0.95rem; outline: none; transition: border 0.15s; background: #f8f9fa; margin-bottom: 20px; box-sizing: border-box; }
-        .date-input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 2px rgba(26,115,232,0.15); }
-        .btn { width: 100%; padding: 14px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-        .btn:hover { background: #1557b0; }
-        .error { color: #d93025; font-size: 0.9rem; margin-top: 12px; }
-        .stats { margin-top: 24px; display: flex; gap: 24px; justify-content: center; color: #5f6368; font-size: 0.85rem; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f0f2f5; min-height: 100vh; min-height: 100dvh;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding: 16px; -webkit-font-smoothing: antialiased;
+        }
+        .container { max-width: 420px; width: 100%; text-align: center; }
+        .logo { margin-bottom: 32px; }
+        .logo h1 {
+            font-size: 2.4rem; font-weight: 700; color: #1a73e8;
+            letter-spacing: -1px; margin: 0; line-height: 1.1;
+        }
+        .logo p { color: #5f6368; font-size: 0.85rem; margin: 6px 0 0; }
+        .card {
+            background: white; border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+            padding: 24px 20px;
+        }
+        .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .search-row input {
+            flex: 1; width: 0; min-width: 0;
+            padding: 14px 12px; border: 1px solid #dadce0; border-radius: 12px;
+            font-size: 1rem; outline: none; background: #f8f9fa;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            -webkit-appearance: none; appearance: none;
+        }
+        .search-row input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
+        .search-row input::placeholder { color: #9aa0a6; }
+        .date-input {
+            width: 100%; padding: 14px 12px; border: 1px solid #dadce0; border-radius: 12px;
+            font-size: 1rem; outline: none; background: #f8f9fa; margin-bottom: 16px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            -webkit-appearance: none; appearance: none; color: #202124;
+        }
+        .date-input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
+        .btn {
+            width: 100%; padding: 14px; background: #1a73e8; color: white; border: none;
+            border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer;
+            transition: background 0.15s, transform 0.1s; -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active { background: #1557b0; transform: scale(0.98); }
+        .error { color: #d93025; font-size: 0.85rem; margin-top: 10px; }
+        .stats { margin-top: 20px; display: flex; gap: 20px; justify-content: center; color: #5f6368; font-size: 0.8rem; flex-wrap: wrap; }
         .stats span { font-weight: 600; color: #202124; }
-        .footer { margin-top: 32px; color: #9aa0a6; font-size: 0.8rem; }
+        .footer { margin-top: 28px; color: #9aa0a6; font-size: 0.75rem; line-height: 1.5; }
+        @media (max-width: 420px) {
+            body { padding: 12px; justify-content: flex-start; padding-top: 40px; }
+            .logo { margin-bottom: 24px; }
+            .logo h1 { font-size: 2rem; }
+            .card { padding: 20px 16px; border-radius: 16px; }
+            .search-row { gap: 6px; }
+            .search-row input { padding: 12px 10px; font-size: 0.9rem; }
+        }
+        @media (prefers-color-scheme: dark) {
+            body { background: #1a1a2e; }
+            .card { background: #16213e; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+            .logo h1 { color: #4da6ff; }
+            .logo p { color: #8899aa; }
+            .search-row input, .date-input { background: #0f3460; border-color: #1a4a7a; color: #e0e0e0; }
+            .search-row input:focus, .date-input:focus { background: #0f3460; border-color: #4da6ff; }
+            .search-row input::placeholder { color: #6688aa; }
+            .stats { color: #8899aa; }
+            .stats span { color: #e0e0e0; }
+            .footer { color: #556688; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">
             <h1>FlightPulse</h1>
-            <p>Track price changes across scraped flight data</p>
+            <p>Track flight prices across scraped data</p>
         </div>
         <div class="card">
             <form action="/search" method="get">
                 <div class="search-row">
-                    <input type="text" name="from" placeholder="From (e.g. AMD)" maxlength="4" required>
-                    <input type="text" name="to" placeholder="To (e.g. BLR)" maxlength="4" required>
+                    <input type="text" name="from" placeholder="From" maxlength="4" required autocomplete="off" autocapitalize="characters">
+                    <input type="text" name="to" placeholder="To" maxlength="4" required autocomplete="off" autocapitalize="characters">
                 </div>
                 <input type="date" name="date" class="date-input" required>
                 <button type="submit" class="btn">Search Flights</button>
@@ -58,7 +106,7 @@
             <div>Last scrape: <span id="lastScrape">--</span></div>
             <div>Total records: <span id="totalRecords">--</span></div>
         </div>
-        <div class="footer">Powered by Google Flights scraper &middot; Updates every 4 hours</div>
+        <div class="footer">Powered by Google Flights scraper · Updates every 4 hours</div>
     </div>
     <script>
         async function loadStats() {

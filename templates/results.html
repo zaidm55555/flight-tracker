@@ -3,45 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#1a73e8">
+    <meta name="theme-color" content="#f0f2f5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="FlightTracker">
     <link rel="manifest" href="/static/manifest.json">
     <link rel="apple-touch-icon" href="/static/icon-192.png">
     <title>Flight Results</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>* { font-family: 'Inter', sans-serif; } body { background: #f0f2f5; }</style>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f0f2f5; min-height: 100vh; min-height: 100dvh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding: 12px; -webkit-font-smoothing: antialiased;
+        }
+        .header {
+            background: white; border-radius: 16px; padding: 14px 16px;
+            margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            position: sticky; top: 12px; z-index: 10;
+        }
+        .header h1 { font-size: 1rem; font-weight: 600; color: #202124; }
+        .header h1 span { color: #5f6368; font-weight: 400; }
+        .back {
+            color: #1a73e8; text-decoration: none; font-size: 0.85rem;
+            font-weight: 500; padding: 6px 10px; border-radius: 8px;
+            -webkit-tap-highlight-color: transparent; transition: background 0.15s;
+        }
+        .back:active { background: #e8f0fe; }
+        .card {
+            background: white; border-radius: 16px; padding: 16px;
+            margin-bottom: 10px; cursor: pointer; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: box-shadow 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .card:active { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .card-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+        .airline-badge {
+            width: 40px; height: 40px; border-radius: 50%; background: #e8f0fe;
+            display: flex; align-items: center; justify-content: center;
+            color: #1a73e8; font-weight: 700; font-size: 0.8rem; flex-shrink: 0;
+        }
+        .airline-name { font-size: 0.8rem; color: #5f6368; font-weight: 500; }
+        .times { font-size: 1.05rem; font-weight: 600; color: #202124; margin-top: 2px; }
+        .meta { font-size: 0.8rem; color: #5f6368; margin-top: 2px; }
+        .card-right { text-align: right; flex-shrink: 0; }
+        .price { font-size: 1.15rem; font-weight: 700; color: #202124; }
+        .hint { font-size: 0.7rem; color: #9aa0a6; margin-top: 4px; }
+        .chart-box { margin-top: 14px; display: none; }
+        .chart-box canvas { width: 100% !important; max-height: 160px; }
+        .chart-placeholder { color: #9aa0a6; font-size: 0.8rem; text-align: center; padding: 20px 0; }
+        .no-flights { background: white; border-radius: 16px; padding: 40px 20px; text-align: center; }
+        .no-flights p { color: #5f6368; font-size: 1rem; }
+        .no-flights a { color: #1a73e8; text-decoration: none; font-size: 0.85rem; margin-top: 8px; display: inline-block; }
+        @media (max-width: 420px) {
+            body { padding: 8px; }
+            .header { padding: 12px 14px; border-radius: 14px; }
+            .card { padding: 14px; }
+            .airline-badge { width: 36px; height: 36px; font-size: 0.75rem; }
+            .times { font-size: 1rem; }
+            .price { font-size: 1.05rem; }
+        }
+        @media (prefers-color-scheme: dark) {
+            body { background: #1a1a2e; }
+            .header, .card, .no-flights { background: #16213e; }
+            .header h1 { color: #e0e0e0; }
+            .header h1 span { color: #8899aa; }
+            .back { color: #4da6ff; }
+            .back:active { background: #1a3a5a; }
+            .airline-badge { background: #1a3a5a; color: #4da6ff; }
+            .airline-name { color: #8899aa; }
+            .times { color: #e0e0e0; }
+            .meta { color: #8899aa; }
+            .price { color: #e0e0e0; }
+            .hint { color: #556688; }
+            .chart-placeholder { color: #556688; }
+            .no-flights p { color: #8899aa; }
+        }
+    </style>
 </head>
-<body class="min-h-screen p-4">
+<body>
 <div class="max-w-3xl mx-auto">
-<div class="bg-white rounded-2xl shadow-sm p-4 mb-4 flex items-center justify-between">
-<h1 class="text-lg font-semibold">{{ origin }} → {{ destination }} <span class="text-gray-400 text-sm font-normal">- {{ date }}</span></h1>
-<a href="/" class="text-blue-600 text-sm hover:underline">← Back</a>
+<div class="header">
+<h1>{{ origin }} → {{ destination }} <span>- {{ date }}</span></h1>
+<a href="/" class="back">← Back</a>
 </div>
 {% if flights %}
 {% for f in flights %}
-<div class="bg-white rounded-2xl shadow-sm p-4 mb-3 cursor-pointer hover:shadow-md flight-card"
-     data-fid="{{ f.flight_id }}">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-4 flex-1">
-<div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">{{ f.airline[:2] }}</div>
-<div><div class="text-sm text-gray-500 font-medium">{{ f.airline }}</div>
-<div class="text-xl font-semibold mt-0.5">{{ f.departure_time }} – {{ f.arrival_time }}</div>
-<div class="text-sm text-gray-500 mt-0.5">{{ f.duration }} · {{ f.stops }}</div></div>
+<div class="card flight-card" data-fid="{{ f.flight_id }}">
+<div class="card-row">
+<div class="card-left">
+<div class="airline-badge">{{ f.airline[:2] }}</div>
+<div>
+<div class="airline-name">{{ f.airline }}</div>
+<div class="times">{{ f.departure_time }} – {{ f.arrival_time }}</div>
+<div class="meta">{{ f.duration }} · {{ f.stops }}</div>
 </div>
-<div class="text-right"><div class="text-xl font-bold text-gray-900">{{ f.price_formatted }}</div>
-<div class="text-xs text-gray-400 mt-1">Click for price history ↓</div></div>
 </div>
-<div class="mt-4 chart-box" style="display:none;"><canvas class="chart-canvas" height="140"></canvas></div>
+<div class="card-right">
+<div class="price">{{ f.price_formatted }}</div>
+<div class="hint">History ↓</div>
+</div>
+</div>
+<div class="chart-box"><canvas></canvas></div>
 </div>
 {% endfor %}
 {% else %}
-<div class="bg-white rounded-2xl shadow-sm p-12 text-center">
-<div class="text-gray-500 text-lg">No flights found.</div>
-<a href="/" class="text-blue-600 text-sm hover:underline mt-2 inline-block">Try again</a>
+<div class="no-flights">
+<p>No flights found</p>
+<a href="/">Try again</a>
 </div>
 {% endif %}
 </div>
@@ -57,14 +133,14 @@ box.style.display="block";
 var fid=card.dataset.fid;
 var url="/api/history?flight_id="+encodeURIComponent(fid)+"&from={{ origin }}&to={{ destination }}";
 fetch(url).then(function(r){return r.json()}).then(function(d){
-if(!d.length){box.innerHTML="<p class='text-gray-400 text-sm py-4 text-center'>No price history yet. Run scraper again later.</p>";return;}
+if(!d.length){box.innerHTML="<p class='chart-placeholder'>No price history yet</p>";return;}
 if(charts[fid]){charts[fid].destroy();}
 var cv=box.querySelector("canvas");
 setTimeout(function(){
 charts[fid]=new Chart(cv.getContext("2d"),{
 type:"line",
-data:{labels:d.map(function(x){var dt=new Date(x.t);return dt.toLocaleDateString("en-IN",{month:"short",day:"numeric"})+" "+dt.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}),datasets:[{label:"Price",data:d.map(function(x){return x.p}),borderColor:"#1a73e8",backgroundColor:"rgba(26,115,232,0.1)",fill:true,tension:0.3,pointRadius:5,pointBackgroundColor:"#1a73e8"}]},
-options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return "Rs."+ctx.parsed.y.toLocaleString()}}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,font:{size:10}}},y:{grid:{color:"#f0f0f0"},ticks:{callback:function(v){return "Rs."+v.toLocaleString()}}}}}
+data:{labels:d.map(function(x){var dt=new Date(x.t);return dt.toLocaleDateString("en-IN",{month:"short",day:"numeric"})+" "+dt.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}),datasets:[{label:"Price",data:d.map(function(x){return x.p}),borderColor:"#1a73e8",backgroundColor:"rgba(26,115,232,0.1)",fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:"#1a73e8"}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return "Rs."+ctx.parsed.y.toLocaleString()}}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:6,font:{size:10}}},y:{grid:{color:"rgba(0,0,0,0.05)"},ticks:{callback:function(v){return "Rs."+v.toLocaleString()}}}}}
 });
 },100);
 });
