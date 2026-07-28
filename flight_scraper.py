@@ -202,7 +202,7 @@ class FlightScraper:
         # Assign stable fuzzy flight IDs to all flights
         for f in unique_flights:
             f["flight_id"] = generate_flight_id(
-                f["airline"], f["departure_time"], f["duration"], f["stops"]
+                f["airline"], f["departure_time"], f["arrival_time"], f["stops"]
             )
 
         # Filter by airline / flight number if requested
@@ -248,13 +248,14 @@ def stops_to_int(stops):
     return int(m.group(1)) if m else 1
 
 
-def generate_flight_id(airline, dep_time, duration, stops):
+def generate_flight_id(airline, dep_time, arr_time, stops):
     """Generate a stable flight ID using fuzzy matching.
 
     Times are rounded to 15-min buckets so minor schedule shifts
     still map to the same flight. Duration is intentionally excluded
     because Google Flights returns inconsistent durations for the same
-    flight across scrapes.
+    flight across scrapes, but arrival time is stable enough to
+    distinguish different flights with the same departure time.
     """
     def round_to_bucket(val, bucket=15):
         return round(val / bucket) * bucket
@@ -264,11 +265,14 @@ def generate_flight_id(airline, dep_time, duration, stops):
     dep_min = parse_time_to_minutes(dep_time)
     dep_bucket = round_to_bucket(dep_min, 15) if dep_min is not None else dep_time
 
+    arr_min = parse_time_to_minutes(arr_time)
+    arr_bucket = round_to_bucket(arr_min, 15) if arr_min is not None else "??"
+
     stops_n = stops_to_int(stops)
 
-    raw = f"{norm_airline}|{dep_bucket}|{stops_n}"
+    raw = f"{norm_airline}|{dep_bucket}|{arr_bucket}|{stops_n}"
     short_hash = hashlib.md5(raw.encode()).hexdigest()[:10]
-    return f"{norm_airline}_{dep_bucket}_{stops_n}_{short_hash}"
+    return f"{norm_airline}_{dep_bucket}_{arr_bucket}_{stops_n}_{short_hash}"
 
 
 # ------------------------------------------------------------------
