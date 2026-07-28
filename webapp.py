@@ -17,7 +17,8 @@ except:
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    from datetime import date
+    return render_template("index.html", current_date=date.today().isoformat())
 
 @app.route("/search")
 def search():

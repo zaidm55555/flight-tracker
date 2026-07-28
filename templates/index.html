@@ -49,6 +49,19 @@
             font-size: 1rem; outline: none; background: #f8f9fa; margin-bottom: 16px;
             transition: border-color 0.15s, box-shadow 0.15s;
             -webkit-appearance: none; appearance: none; color: #202124;
+            display: block; position: relative;
+        }
+        .date-input::-webkit-datetime-edit { padding: 0; }
+        .date-input::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+        .date-input::-webkit-datetime-edit-text { color: #5f6368; padding: 0 2px; }
+        .date-input::-webkit-datetime-edit-month-field,
+        .date-input::-webkit-datetime-edit-day-field,
+        .date-input::-webkit-datetime-edit-year-field {
+            color: #202124; padding: 0 2px;
+        }
+        .date-input::-webkit-calendar-picker-indicator {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%235f6368' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") center no-repeat;
+            cursor: pointer; padding: 10px; opacity: 1;
         }
         .date-input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
         .btn {
@@ -95,7 +108,7 @@
                     <input type="text" name="from" placeholder="From" maxlength="4" required autocomplete="off" autocapitalize="characters">
                     <input type="text" name="to" placeholder="To" maxlength="4" required autocomplete="off" autocapitalize="characters">
                 </div>
-                <input type="date" name="date" class="date-input" required>
+                <input type="date" name="date" class="date-input" required min="{{ current_date }}">
                 <button type="submit" class="btn">Search Flights</button>
             </form>
             {% if error %}
