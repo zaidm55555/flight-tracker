@@ -1,9 +1,0 @@
-services:
-  - type: cron
-    name: flight-price-scraper
-    env: docker
-    dockerfilePath: ./Dockerfile
-    schedule: "0 */4 * * *"
-    envVars:
-      - key: MONGODB_URI
-        sync: false
