@@ -2,6 +2,7 @@
 """
 Flight Price & Details Scraper
 Scrapes live flight prices and detailed information for any route on a specified date.
+Uses fuzzy flight IDs so the same flight is tracked across scrapes even if times shift slightly.
 """
 
 import sys
@@ -9,6 +10,7 @@ import os
 import re
 import json
 import csv
+import hashlib
 import argparse
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -120,7 +122,7 @@ class FlightScraper:
             "raw_summary": card_text[:150]
         }
 
-    def scrape(self, origin, destination, travel_date, flight_filter=None, currency="INR"):
+    def scrape(self, origin, destination, travel_date, flight_filter=None, currency="INR", click_cards=True):
         from playwright.sync_api import sync_playwright
 
         url = self.build_search_url(origin, destination, travel_date, currency)
@@ -167,6 +169,7 @@ class FlightScraper:
                 all_lis = page.query_selector_all('li')
                 print(f"[+] Scanning {len(all_lis)} candidate elements...")
 
+                card_elements = []
                 for el in all_lis:
                     try:
                         txt = el.inner_text().strip()
@@ -175,15 +178,19 @@ class FlightScraper:
                             flight_data = self.parse_flight_card(card_html, origin, destination, travel_date)
                             if flight_data["price_formatted"] != "N/A" or flight_data["departure_time"] != "N/A":
                                 flights_list.append(flight_data)
+                                card_elements.append(el)
                     except Exception:
                         continue
+
+                if click_cards and card_elements:
+                    print(f"[+] Skipping card clicking (Google Flights does not expose IATA flight numbers).")
 
             except Exception as e:
                 print(f"[!] Error during scraping: {e}")
             finally:
                 browser.close()
 
-        # Deduplicate
+        # Deduplicate within this scrape (exact match)
         unique_flights = []
         seen_keys = set()
         for f in flights_list:
@@ -191,6 +198,13 @@ class FlightScraper:
             if key not in seen_keys:
                 seen_keys.add(key)
                 unique_flights.append(f)
+
+        # Assign stable fuzzy flight IDs to all flights
+        for f in unique_flights:
+            f["flight_id"] = generate_flight_id(
+                f["airline"], f["departure_time"], f["arrival_time"],
+                f["duration"], f["stops"]
+            )
 
         # Filter by airline / flight number if requested
         if flight_filter:
@@ -206,6 +220,59 @@ class FlightScraper:
             return filtered
 
         return unique_flights
+
+
+def parse_time_to_minutes(t):
+    """Convert '8:30 AM' -> minutes since midnight (510)."""
+    m = re.match(r'(\d{1,2}):(\d{2})\s*(AM|PM)', t, re.IGNORECASE)
+    if not m:
+        return None
+    h, mi, ampm = int(m.group(1)), int(m.group(2)), m.group(3).upper()
+    if ampm == 'PM' and h != 12:
+        h += 12
+    elif ampm == 'AM' and h == 12:
+        h = 0
+    return h * 60 + mi
+
+
+def duration_to_minutes(dur):
+    """Convert '2 hr 35 min' -> 155."""
+    hr = re.search(r'(\d+)\s*hr', dur)
+    mn = re.search(r'(\d+)\s*min', dur)
+    return (int(hr.group(1)) * 60 if hr else 0) + (int(mn.group(1)) if mn else 0)
+
+
+def stops_to_int(stops):
+    if 'nonstop' in stops.lower():
+        return 0
+    m = re.search(r'(\d+)', stops)
+    return int(m.group(1)) if m else 1
+
+
+def generate_flight_id(airline, dep_time, arr_time, duration, stops):
+    """Generate a stable flight ID using fuzzy matching.
+
+    Times are rounded to 15-min buckets, durations to 15-min buckets,
+    so minor schedule shifts still map to the same flight.
+    """
+    def round_to_bucket(val, bucket=15):
+        return round(val / bucket) * bucket
+
+    norm_airline = re.sub(r'\s+', '', airline.strip().lower())
+
+    dep_min = parse_time_to_minutes(dep_time)
+    arr_min = parse_time_to_minutes(arr_time)
+    dep_bucket = round_to_bucket(dep_min, 15) if dep_min is not None else dep_time
+    arr_bucket = round_to_bucket(arr_min, 15) if arr_min is not None else arr_time
+
+    dur_mins = duration_to_minutes(duration)
+    dur_bucket = round_to_bucket(dur_mins, 15)
+
+    stops_n = stops_to_int(stops)
+
+    raw = f"{norm_airline}|{dep_bucket}|{dur_bucket}|{stops_n}"
+    short_hash = hashlib.md5(raw.encode()).hexdigest()[:10]
+    return f"{norm_airline}_{dep_bucket}_{dur_bucket}_{stops_n}_{short_hash}"
 
 
 # ------------------------------------------------------------------
@@ -290,6 +357,7 @@ def main():
     parser.add_argument("-o", "--output", dest="output", choices=["console", "json", "csv", "all"], default="all", help="Output format (default: all)")
     parser.add_argument("--save-db", action="store_true", help="Save results to MongoDB")
     parser.add_argument("--headed", action="store_true", help="Run browser in visible mode")
+    parser.add_argument("--no-click", action="store_true", help="Skip clicking cards for flight numbers (faster)")
 
     args = parser.parse_args()
 
@@ -314,7 +382,8 @@ def main():
         destination=args.destination,
         travel_date=args.date,
         flight_filter=args.flight,
-        currency=args.currency
+        currency=args.currency,
+        click_cards=not args.no_click
     )
 
     print(f"\n[+] Total flights extracted: {len(flights)}")

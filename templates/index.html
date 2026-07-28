@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Price Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #f0f2f5; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; padding: 20px; }
+        .container { max-width: 640px; width: 100%; text-align: center; }
+        .logo { margin-bottom: 40px; }
+        .logo h1 { font-size: 2.8rem; font-weight: 700; color: #1a73e8; letter-spacing: -1px; margin: 0; }
+        .logo p { color: #5f6368; font-size: 0.95rem; margin: 4px 0 0; }
+        .card { background: white; border-radius: 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.1), 0 4px 24px rgba(0,0,0,0.06); padding: 32px; }
+        .search-row { display: flex; gap: 12px; margin-bottom: 16px; }
+        .search-row input { flex: 1; padding: 14px 16px; border: 1px solid #dadce0; border-radius: 12px; font-size: 0.95rem; outline: none; transition: border 0.15s; background: #f8f9fa; }
+        .search-row input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 2px rgba(26,115,232,0.15); }
+        .date-input { width: 100%; padding: 14px 16px; border: 1px solid #dadce0; border-radius: 12px; font-size: 0.95rem; outline: none; transition: border 0.15s; background: #f8f9fa; margin-bottom: 20px; box-sizing: border-box; }
+        .date-input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 2px rgba(26,115,232,0.15); }
+        .btn { width: 100%; padding: 14px; background: #1a73e8; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+        .btn:hover { background: #1557b0; }
+        .error { color: #d93025; font-size: 0.9rem; margin-top: 12px; }
+        .stats { margin-top: 24px; display: flex; gap: 24px; justify-content: center; color: #5f6368; font-size: 0.85rem; }
+        .stats span { font-weight: 600; color: #202124; }
+        .footer { margin-top: 32px; color: #9aa0a6; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>FlightPulse</h1>
+            <p>Track price changes across scraped flight data</p>
+        </div>
+        <div class="card">
+            <form action="/search" method="get">
+                <div class="search-row">
+                    <input type="text" name="from" placeholder="From (e.g. AMD)" maxlength="4" required>
+                    <input type="text" name="to" placeholder="To (e.g. BLR)" maxlength="4" required>
+                </div>
+                <input type="date" name="date" class="date-input" required>
+                <button type="submit" class="btn">Search Flights</button>
+            </form>
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+        </div>
+        <div class="stats">
+            <div>Last scrape: <span id="lastScrape">--</span></div>
+            <div>Total records: <span id="totalRecords">--</span></div>
+        </div>
+        <div class="footer">Powered by Google Flights scraper &middot; Updates every 4 hours</div>
+    </div>
+    <script>
+        async function loadStats() {
+            try {
+                const r = await fetch('/api/stats');
+                const d = await r.json();
+                document.getElementById('lastScrape').textContent = d.last_scrape ? new Date(d.last_scrape).toLocaleString() : 'N/A';
+                document.getElementById('totalRecords').textContent = d.total || 0;
+            } catch(e) {}
+        }
+        loadStats();
+    </script>
+</body>
+</html>
