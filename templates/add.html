@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1a73e8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Add Route — FlightPulse</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f0f2f5; min-height: 100vh; min-height: 100dvh;
+            display: flex; flex-direction: column; align-items: center;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding: 16px; -webkit-font-smoothing: antialiased;
+        }
+        .container { max-width: 420px; width: 100%; }
+        .back { text-decoration: none; color: #1a73e8; font-size: 0.9rem; font-weight: 500; display: inline-block; margin-bottom: 20px; }
+        .back:hover { text-decoration: underline; }
+        .card {
+            background: white; border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+            padding: 24px 20px;
+        }
+        .card h2 { font-size: 1.3rem; font-weight: 600; color: #202124; margin-bottom: 4px; }
+        .card p { color: #5f6368; font-size: 0.85rem; margin-bottom: 20px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block; font-size: 0.75rem; font-weight: 600; color: #5f6368;
+            margin-bottom: 5px; letter-spacing: 0.3px; text-transform: uppercase;
+        }
+        .form-group input {
+            width: 100%; min-height: 48px; padding: 0 12px;
+            border: 1px solid #dadce0; border-radius: 12px;
+            font-size: 1rem; font-family: inherit; color: #202124;
+            outline: none; background: #f8f9fa;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            -webkit-appearance: none; appearance: none;
+        }
+        .form-group input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
+        .form-group input::placeholder { color: #9aa0a6; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+        .btn {
+            width: 100%; padding: 14px; background: #1a73e8; color: white; border: none;
+            border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer;
+            transition: background 0.15s, transform 0.1s; -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active { background: #1557b0; transform: scale(0.98); }
+        .error { color: #d93025; font-size: 0.85rem; margin-top: 10px; text-align: center; }
+        .success { color: #137333; font-size: 0.85rem; margin-top: 10px; text-align: center; }
+
+        @media (max-width: 420px) {
+            body { padding: 12px; padding-top: 40px; }
+            .card { padding: 20px 16px; }
+        }
+        @media (prefers-color-scheme: dark) {
+            body { background: #1a1a2e; }
+            .card { background: #16213e; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+            .card h2 { color: #e0e0e0; }
+            .card p { color: #8899aa; }
+            .form-group label { color: #8899aa; }
+            .form-group input { background: #0f3460; border-color: #1a4a7a; color: #e0e0e0; }
+            .form-group input:focus { background: #0f3460; border-color: #4da6ff; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back">← Back</a>
+        <div class="card">
+            <h2>Add Route</h2>
+            <p>Start tracking flight prices for a new route</p>
+            <form id="routeForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="origin">From</label>
+                        <input type="text" id="origin" placeholder="AMD" maxlength="4" required autocomplete="off" autocapitalize="characters">
+                    </div>
+                    <div class="form-group">
+                        <label for="destination">To</label>
+                        <input type="text" id="destination" placeholder="BLR" maxlength="4" required autocomplete="off" autocapitalize="characters">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="date">Travel Date</label>
+                    <input type="date" id="date" required min="{{ current_date }}" value="{{ current_date }}">
+                </div>
+                <button type="submit" class="btn">Start Tracking</button>
+                <div id="message" class="error" style="display:none;"></div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.getElementById('routeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const origin = document.getElementById('origin').value.trim().toUpperCase();
+            const destination = document.getElementById('destination').value.trim().toUpperCase();
+            const date = document.getElementById('date').value;
+            const msg = document.getElementById('message');
+            msg.style.display = 'none';
+
+            if (!origin || !destination || !date) {
+                msg.textContent = 'Fill in all fields';
+                msg.style.display = 'block';
+                return;
+            }
+
+            try {
+                const r = await fetch('/api/routes', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({origin, destination, date})
+                });
+                const d = await r.json();
+                if (r.ok) {
+                    msg.className = 'success';
+                    msg.textContent = 'Route added! Redirecting...';
+                    msg.style.display = 'block';
+                    setTimeout(() => window.location.href = '/', 1000);
+                } else {
+                    msg.className = 'error';
+                    msg.textContent = d.error || 'Failed to add route';
+                    msg.style.display = 'block';
+                }
+            } catch(e) {
+                msg.className = 'error';
+                msg.textContent = 'Network error';
+                msg.style.display = 'block';
+            }
+        });
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js').catch(function() {});
+        }
+    </script>
+</body>
+</html>

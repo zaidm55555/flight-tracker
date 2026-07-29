@@ -23,13 +23,7 @@ jobs:
           playwright install chromium
           playwright install-deps chromium
 
-      - name: Run scraper
-        run: python flight_scraper.py --from AMD --to BLR --date 2026-08-11 --save-db
+      - name: Run scraper (all routes)
+        run: python flight_scraper.py --all --save-db
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
-
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: flight-results
-          path: flights_*.json

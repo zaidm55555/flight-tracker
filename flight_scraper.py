@@ -279,6 +279,96 @@ def generate_flight_id(airline, dep_time, arr_time, stops):
 # EXPORTERS & DISPLAY
 # ------------------------------------------------------------------
 
+def get_mongo_collection(name="flight_prices"):
+    mongo_uri = os.getenv("MONGODB_URI")
+    if not mongo_uri or not HAS_PYMONGO:
+        return None, None
+    try:
+        client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        return client, client["flight_db"][name]
+    except Exception as err:
+        print(f"[!] MongoDB connection error: {err}")
+        return None, None
+
+
+def get_active_routes():
+    """Fetch all active routes from tracked_routes collection."""
+    client, col = get_mongo_collection("tracked_routes")
+    if col is None:
+        return []
+    routes = list(col.find({"status": "active"}).sort("added_at", 1))
+    if routes:
+        print(f"[+] Loaded {len(routes)} active route(s) to scrape:")
+        for r in routes:
+            print(f"    {r['origin']} → {r['destination']} on {r['date']}")
+    else:
+        print("[!] No active routes found in tracked_routes.")
+    client.close()
+    return routes
+
+
+def scrape_all_routes(currency="INR", click_cards=True, output="console"):
+    """Scrape all active routes and save results to MongoDB."""
+    routes = get_active_routes()
+    if not routes:
+        return
+
+    scraper = FlightScraper()
+    total_flights = 0
+
+    for route in routes:
+        origin = route["origin"]
+        dest = route["destination"]
+        date = route["date"]
+        route_id = f"{origin}_{dest}_{date}"
+
+        print(f"\n{'='*50}")
+        print(f" Scraping {origin} → {dest} on {date}")
+        print(f"{'='*50}")
+
+        flights = scraper.scrape(
+            origin=origin, destination=dest, travel_date=date,
+            currency=currency, click_cards=click_cards
+        )
+
+        print(f"\n[+] Extracted {len(flights)} flights")
+
+        # Add route_id to each flight
+        for f in flights:
+            f["route_id"] = route_id
+
+        display_terminal_table(flights)
+        total_flights += len(flights)
+
+        if flights and output == "console":
+            pass
+
+        # Save to MongoDB
+        save_to_mongodb(flights)
+
+        # Update route tracking metadata
+        update_route_metadata(route["_id"], len(flights))
+
+    print(f"\n[+] Scraped {len(routes)} route(s), {total_flights} total flight records.")
+
+
+def update_route_metadata(route_obj_id, record_count):
+    """Update last_scraped_at and increment scrape_count for a route."""
+    client, col = get_mongo_collection("tracked_routes")
+    if col is None:
+        return
+    try:
+        col.update_one(
+            {"_id": route_obj_id},
+            {"$set": {"last_scraped_at": datetime.utcnow().isoformat() + "Z"},
+             "$inc": {"scrape_count": 1}}
+        )
+    except Exception as err:
+        print(f"[!] Failed to update route metadata: {err}")
+    finally:
+        client.close()
+
+
 def save_to_mongodb(flights_data):
     mongo_uri = os.getenv("MONGODB_URI")
     if not mongo_uri or not HAS_PYMONGO:
@@ -288,6 +378,9 @@ def save_to_mongodb(flights_data):
         client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
         collection = client["flight_db"]["flight_prices"]
         if isinstance(flights_data, list) and flights_data:
+            for f in flights_data:
+                if "route_id" not in f:
+                    f["route_id"] = f"{f['origin']}_{f['destination']}_{f['date']}"
             result = collection.insert_many(flights_data)
             print(f"[+] Inserted {len(result.inserted_ids)} records into MongoDB.")
             return True
@@ -349,9 +442,10 @@ def export_csv(flights, filename):
 
 def main():
     parser = argparse.ArgumentParser(description="Scrape one-way flight prices and details for a route and date.")
-    parser.add_argument("-f", "--from", dest="origin", required=True, help="Origin airport code (e.g. BDQ, BOM, JFK)")
-    parser.add_argument("-t", "--to", dest="destination", required=True, help="Destination airport code (e.g. BLR, DEL, LHR)")
-    parser.add_argument("-d", "--date", dest="date", required=True, help="Travel date in YYYY-MM-DD format")
+    parser.add_argument("-f", "--from", dest="origin", help="Origin airport code (e.g. BDQ, BOM, JFK)")
+    parser.add_argument("-t", "--to", dest="destination", help="Destination airport code (e.g. BLR, DEL, LHR)")
+    parser.add_argument("-d", "--date", dest="date", help="Travel date in YYYY-MM-DD format")
+    parser.add_argument("--all", action="store_true", help="Scrape all active routes from tracked_routes collection")
     parser.add_argument("-fl", "--flight", dest="flight", default=None, help="Filter by airline or flight number (e.g. IndiGo, 6E 5322)")
     parser.add_argument("-c", "--currency", dest="currency", default="INR", help="Currency code (default: INR)")
     parser.add_argument("-o", "--output", dest="output", choices=["console", "json", "csv", "all"], default="console", help="Output format (default: console)")
@@ -360,6 +454,13 @@ def main():
     parser.add_argument("--no-click", action="store_true", help="Skip clicking cards for flight numbers (faster)")
 
     args = parser.parse_args()
+
+    if args.all:
+        scrape_all_routes(currency=args.currency, click_cards=not args.no_click, output=args.output)
+        return
+
+    if not all([args.origin, args.destination, args.date]):
+        parser.error("--from, --to, and --date are required unless --all is used")
 
     try:
         datetime.strptime(args.date, "%Y-%m-%d")

@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1a73e8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="FlightTracker">
+    <meta name="apple-mobile-web-app-title" content="FlightPulse">
     <link rel="manifest" href="/static/manifest.json">
     <link rel="apple-touch-icon" href="/static/icon-192.png">
     <title>FlightPulse</title>
@@ -18,132 +18,143 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #f0f2f5; min-height: 100vh; min-height: 100dvh;
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
             padding: 16px; -webkit-font-smoothing: antialiased;
         }
-        .container { max-width: 420px; width: 100%; text-align: center; }
-        .logo { margin-bottom: 32px; }
-        .logo h1 {
-            font-size: 2.4rem; font-weight: 700; color: #1a73e8;
-            letter-spacing: -1px; margin: 0; line-height: 1.1;
+        .container { max-width: 520px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 {
+            font-size: 2rem; font-weight: 700; color: #1a73e8;
+            letter-spacing: -1px; line-height: 1.1;
         }
-        .logo p { color: #5f6368; font-size: 0.85rem; margin: 6px 0 0; }
+        .header p { color: #5f6368; font-size: 0.85rem; margin: 4px 0 0; }
+        .stats-bar {
+            display: flex; gap: 16px; justify-content: center; margin-bottom: 20px;
+            color: #5f6368; font-size: 0.8rem; flex-wrap: wrap;
+        }
+        .stats-bar span { font-weight: 600; color: #202124; }
         .card {
-            background: white; border-radius: 20px;
+            background: white; border-radius: 16px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
-            padding: 24px 20px;
+            padding: 18px; margin-bottom: 12px;
+            transition: box-shadow 0.15s;
         }
-        .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
-        .search-row input {
-            flex: 1; width: 0; min-width: 0;
-            padding: 14px 12px; border: 1px solid #dadce0; border-radius: 12px;
-            font-size: 1rem; outline: none; background: #f8f9fa;
-            transition: border-color 0.15s, box-shadow 0.15s;
-            -webkit-appearance: none; appearance: none;
+        .card:active { box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .route-header { display: flex; align-items: center; justify-content: space-between; }
+        .route-cities { font-size: 1.1rem; font-weight: 600; color: #202124; }
+        .route-cities .arrow { color: #9aa0a6; margin: 0 6px; }
+        .route-actions { display: flex; gap: 8px; }
+        .badge {
+            font-size: 0.65rem; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+            letter-spacing: 0.3px; text-transform: uppercase;
         }
-        .search-row input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
-        .search-row input::placeholder { color: #9aa0a6; }
-        .date-label {
-            display: block; text-align: left; font-size: 0.75rem; font-weight: 600;
-            color: #5f6368; margin-bottom: 5px; letter-spacing: 0.3px; text-transform: uppercase;
-        }
-        .date-wrap {
-            position: relative; margin-bottom: 16px;
-        }
-        .date-input {
-            width: 100%; min-height: 48px;
-            padding: 0 14px;
-            border: 1px solid #dadce0; border-radius: 12px;
-            font-size: 1rem; font-family: inherit; color: #202124;
-            outline: none; background: #f8f9fa;
-            transition: border-color 0.15s, box-shadow 0.15s;
-            -webkit-appearance: none; appearance: none;
-            box-sizing: border-box; display: block;
-        }
-        .date-input::-webkit-datetime-edit {
-            padding: 0; line-height: 48px;
-        }
-        .date-input::-webkit-datetime-edit-fields-wrapper { padding: 0; }
-        .date-input::-webkit-datetime-edit-text { color: #5f6368; padding: 0 2px; }
-        .date-input::-webkit-datetime-edit-month-field,
-        .date-input::-webkit-datetime-edit-day-field,
-        .date-input::-webkit-datetime-edit-year-field {
-            color: #202124; padding: 0 2px;
-        }
-        .date-input::-webkit-calendar-picker-indicator {
-            width: 36px; height: 36px; margin-left: 4px; cursor: pointer; opacity: 1;
-            border-radius: 8px; -webkit-tap-highlight-color: transparent;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%231a73e8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") center no-repeat;
-        }
-        .date-input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
+        .badge.active { background: #e6f4ea; color: #137333; }
+        .badge.paused { background: #fef7e0; color: #b06000; }
+        .route-meta { display: flex; align-items: center; gap: 12px; margin-top: 8px; font-size: 0.8rem; color: #5f6368; flex-wrap: wrap; }
+        .route-meta .count { font-weight: 600; color: #202124; }
         .btn {
-            width: 100%; padding: 14px; background: #1a73e8; color: white; border: none;
-            border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer;
-            transition: background 0.15s, transform 0.1s; -webkit-tap-highlight-color: transparent;
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 500;
+            cursor: pointer; transition: background 0.15s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent; border: none; text-decoration: none;
         }
-        .btn:active { background: #1557b0; transform: scale(0.98); }
-        .error { color: #d93025; font-size: 0.85rem; margin-top: 10px; }
-        .stats { margin-top: 20px; display: flex; gap: 20px; justify-content: center; color: #5f6368; font-size: 0.8rem; flex-wrap: wrap; }
-        .stats span { font-weight: 600; color: #202124; }
-        .footer { margin-top: 28px; color: #9aa0a6; font-size: 0.75rem; line-height: 1.5; }
+        .btn-primary { background: #1a73e8; color: white; }
+        .btn-primary:active { background: #1557b0; transform: scale(0.97); }
+        .btn-outline { background: transparent; color: #1a73e8; border: 1px solid #dadce0; }
+        .btn-outline:active { background: #f0f2f5; }
+        .btn-sm { padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; }
+        .btn-add {
+            width: 100%; padding: 14px; border: 2px dashed #dadce0; border-radius: 14px;
+            background: transparent; color: #5f6368; font-size: 0.95rem; font-weight: 500; cursor: pointer;
+            transition: background 0.15s, border-color 0.15s; text-decoration: none; display: block; text-align: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-add:active { background: #f8f9fa; border-color: #1a73e8; color: #1a73e8; }
+        .empty { text-align: center; padding: 40px 20px; color: #5f6368; }
+        .empty p { font-size: 0.9rem; line-height: 1.6; }
+        .empty .btn { margin-top: 16px; }
+        .footer { margin-top: 28px; text-align: center; color: #9aa0a6; font-size: 0.75rem; }
+        .route-actions .btn { min-width: 60px; text-align: center; }
+
         @media (max-width: 420px) {
-            body { padding: 12px; justify-content: flex-start; padding-top: 40px; }
-            .logo { margin-bottom: 24px; }
-            .logo h1 { font-size: 2rem; }
-            .card { padding: 20px 16px; border-radius: 16px; }
-            .search-row { gap: 6px; }
-            .search-row input { padding: 12px 10px; font-size: 0.9rem; }
-            .date-input { min-height: 44px; font-size: 0.9rem; }
-            .date-input::-webkit-datetime-edit { line-height: 44px; }
+            body { padding: 12px; padding-top: 40px; }
+            .header h1 { font-size: 1.7rem; }
+            .card { padding: 14px; }
+            .route-cities { font-size: 1rem; }
         }
+
         @media (prefers-color-scheme: dark) {
             body { background: #1a1a2e; }
             .card { background: #16213e; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-            .logo h1 { color: #4da6ff; }
-            .logo p { color: #8899aa; }
-            .search-row input, .date-input { background: #0f3460; border-color: #1a4a7a; color: #e0e0e0; }
-            .search-row input:focus, .date-input:focus { background: #0f3460; border-color: #4da6ff; }
-            .search-row input::placeholder { color: #6688aa; }
-            .date-label { color: #8899aa; }
-            .stats { color: #8899aa; }
-            .stats span { color: #e0e0e0; }
-            .footer { color: #556688; }
+            .header h1 { color: #4da6ff; }
+            .header p { color: #8899aa; }
+            .route-cities { color: #e0e0e0; }
+            .route-cities .arrow { color: #556688; }
+            .route-meta { color: #8899aa; }
+            .route-meta .count { color: #e0e0e0; }
+            .stats-bar { color: #8899aa; }
+            .stats-bar span { color: #e0e0e0; }
+            .badge.active { background: #1a3a2a; color: #66bb88; }
+            .badge.paused { background: #3a2a1a; color: #ddaa44; }
+            .btn-outline { border-color: #1a4a7a; color: #4da6ff; }
+            .btn-outline:active { background: #0f3460; }
+            .btn-add { border-color: #1a4a7a; color: #8899aa; }
+            .btn-add:active { border-color: #4da6ff; color: #4da6ff; background: #0f3460; }
+            .empty { color: #8899aa; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">
+        <div class="header">
             <h1>FlightPulse</h1>
-            <p>Track flight prices across scraped data</p>
+            <p>Track flight prices across routes</p>
         </div>
-        <div class="card">
-            <form action="/search" method="get">
-                <div class="search-row">
-                    <input type="text" name="from" placeholder="From" maxlength="4" required autocomplete="off" autocapitalize="characters">
-                    <input type="text" name="to" placeholder="To" maxlength="4" required autocomplete="off" autocapitalize="characters">
-                </div>
-                <label class="date-label" for="dateInput">Date</label>
-                <div class="date-wrap"><input type="date" id="dateInput" name="date" class="date-input" required min="{{ current_date }}" value="{{ current_date }}"></div>
-                <button type="submit" class="btn">Search Flights</button>
-            </form>
-            {% if error %}
-            <div class="error">{{ error }}</div>
-            {% endif %}
-        </div>
-        <div class="stats">
+        <div class="stats-bar">
+            <div>Routes: <span>{{ total_active }}</span></div>
+            <div>Records: <span id="totalRecords">--</span></div>
             <div>Last scrape: <span id="lastScrape">--</span></div>
-            <div>Total records: <span id="totalRecords">--</span></div>
         </div>
-        <div class="footer">Powered by Google Flights scraper · Updates every 4 hours</div>
+
+        {% if routes %}
+            {% for r in routes %}
+            <div class="card">
+                <div class="route-header">
+                    <div class="route-cities">{{ r.origin }} <span class="arrow">→</span> {{ r.destination }}</div>
+                    <div class="route-actions">
+                        <span class="badge {{ r.status }}">{{ r.status }}</span>
+                    </div>
+                </div>
+                <div class="route-meta">
+                    <span>{{ r.date }}</span>
+                    <span>·</span>
+                    <span>Flights: <span class="count">{{ r.flight_count }}</span></span>
+                    {% if r.scraped_at_str %}
+                    <span>·</span>
+                    <span>Last: {{ r.scraped_at_str }}</span>
+                    {% endif %}
+                </div>
+                <div style="display:flex; gap:8px; margin-top:12px;">
+                    <a href="/search?from={{ r.origin }}&to={{ r.destination }}&date={{ r.date }}" class="btn btn-primary btn-sm">View Prices</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                <p>No routes being tracked yet.<br>Add your first route to start monitoring flight prices.</p>
+            </div>
+        {% endif %}
+
+        <a href="/add-route" class="btn-add" style="margin-top:12px;">+ Add Route</a>
+
+        <div class="footer">Powered by Google Flights · Updates every 4 hours</div>
     </div>
     <script>
         async function loadStats() {
             try {
                 const r = await fetch('/api/stats');
                 const d = await r.json();
-                document.getElementById('lastScrape').textContent = d.last_scrape ? new Date(d.last_scrape).toLocaleString() : 'N/A';
+                document.getElementById('lastScrape').textContent = d.last_scrape !== 'N/A' ? new Date(d.last_scrape).toLocaleString() : '--';
                 document.getElementById('totalRecords').textContent = d.total || 0;
             } catch(e) {}
         }
