@@ -218,6 +218,22 @@
     <script>
         setupAirportAutocomplete('searchFrom', 'searchFromCode');
         setupAirportAutocomplete('searchTo', 'searchToCode');
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            var fromHidden = document.getElementById('searchFromCode');
+            var toHidden = document.getElementById('searchToCode');
+            var fromVis = document.getElementById('searchFrom');
+            var toVis = document.getElementById('searchTo');
+
+            if (!fromHidden.value) {
+                var m = fromVis.value.match(/\(([A-Z]{3})\)/);
+                fromHidden.value = m ? m[1] : fromVis.value.trim().toUpperCase();
+            }
+            if (!toHidden.value) {
+                var m = toVis.value.match(/\(([A-Z]{3})\)/);
+                toHidden.value = m ? m[1] : toVis.value.trim().toUpperCase();
+            }
+        });
         async function loadStats() {
             try {
                 const r = await fetch('/api/stats');

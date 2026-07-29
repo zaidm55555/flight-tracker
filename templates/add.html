@@ -139,7 +139,21 @@
 
         document.getElementById('routeForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const origin = document.getElementById('originCode').value;
+            var originInput = document.getElementById('originInput');
+            var destInput = document.getElementById('destInput');
+            var originHidden = document.getElementById('originCode');
+            var destHidden = document.getElementById('destCode');
+
+            if (!originHidden.value) {
+                var m = originInput.value.match(/\(([A-Z]{3})\)/);
+                originHidden.value = m ? m[1] : originInput.value.trim().toUpperCase();
+            }
+            if (!destHidden.value) {
+                var m = destInput.value.match(/\(([A-Z]{3})\)/);
+                destHidden.value = m ? m[1] : destInput.value.trim().toUpperCase();
+            }
+
+            const origin = originHidden.value;
             const destination = document.getElementById('destCode').value;
             const date = document.getElementById('date').value;
             const msg = document.getElementById('message');
