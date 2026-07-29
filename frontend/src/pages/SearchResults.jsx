@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import PriceChart from '../components/PriceChart'
+import Spinner from '../components/Spinner'
 
 export default function SearchResults() {
   const [params] = useSearchParams()
@@ -9,15 +10,17 @@ export default function SearchResults() {
   const date = params.get('date') || ''
 
   const [flights, setFlights] = useState([])
+  const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
   const [historyData, setHistoryData] = useState({})
 
   useEffect(() => {
-    if (!from || !to || !date) return
+    if (!from || !to || !date) { setLoading(false); return }
+    setLoading(true)
     fetch(`/search?from=${from}&to=${to}&date=${date}`)
       .then(r => r.json())
-      .then(data => setFlights(data))
-      .catch(() => {})
+      .then(data => { setFlights(data); setLoading(false) })
+      .catch(() => setLoading(false))
   }, [from, to, date])
 
   function toggleCard(fid) {
@@ -51,7 +54,9 @@ export default function SearchResults() {
           <Link to="/" className="back-link">← Back</Link>
         </div>
 
-        {flights.length > 0 ? (
+        {loading ? (
+          <Spinner text="Searching flights..." />
+        ) : flights.length > 0 ? (
           flights.map(f => (
             <div key={f.flight_id} className="flight-card" onClick={() => toggleCard(f.flight_id)}>
               <div className="card-row">

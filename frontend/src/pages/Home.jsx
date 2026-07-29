@@ -12,6 +12,7 @@ function todayStr() {
 
 export default function Home() {
   const [routes, setRoutes] = useState([])
+  const [loadingRoutes, setLoadingRoutes] = useState(true)
   const [stats, setStats] = useState({ total: 0, routes: 0, last_scrape: 'N/A' })
   const [fromCode, setFromCode] = useState('')
   const [toCode, setToCode] = useState('')
@@ -21,8 +22,8 @@ export default function Home() {
   useEffect(() => {
     fetch('/api/routes')
       .then(r => r.json())
-      .then(data => setRoutes(data))
-      .catch(() => {})
+      .then(data => { setRoutes(data); setLoadingRoutes(false) })
+      .catch(() => setLoadingRoutes(false))
     fetchStats().then(setStats).catch(() => {})
   }, [])
 
@@ -67,7 +68,9 @@ export default function Home() {
         </form>
       </div>
 
-      {routes.filter(r => r.status === 'active').length > 0 ? (
+      {loadingRoutes ? (
+        <Spinner text="Loading routes..." />
+      ) : routes.filter(r => r.status === 'active').length > 0 ? (
         routes.filter(r => r.status === 'active').map(r => (
           <div className="card" key={r._id}>
             <div className="route-header">

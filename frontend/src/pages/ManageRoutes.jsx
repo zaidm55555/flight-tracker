@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { toggleRoute, deleteRoute } from '../api'
+import Spinner from '../components/Spinner'
 
 export default function ManageRoutes() {
   const [routes, setRoutes] = useState([])
+  const [loading, setLoading] = useState(true)
 
   function loadRoutes() {
+    setLoading(true)
     fetch('/api/routes')
       .then(r => r.json())
-      .then(data => setRoutes(data))
-      .catch(() => {})
+      .then(data => { setRoutes(data); setLoading(false) })
+      .catch(() => setLoading(false))
   }
 
   useEffect(loadRoutes, [])
@@ -36,7 +39,9 @@ export default function ManageRoutes() {
         <h1>Manage Routes</h1>
         <p className="subtitle">Pause, resume, or delete tracked routes</p>
 
-        {routes.length > 0 ? (
+        {loading ? (
+          <Spinner text="Loading routes..." />
+        ) : routes.length > 0 ? (
           routes.map(r => (
             <div className="route-card" key={r._id}>
               <div className="card-info">
