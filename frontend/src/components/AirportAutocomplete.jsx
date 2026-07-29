@@ -26,7 +26,12 @@ export default function AirportAutocomplete({ value, onChange }) {
   }, [selected])
 
   const filter = useCallback((val) => {
-    if (val.length < 1) { setMatches([]); setShow(false); return }
+    if (val.length < 1) {
+      const m = airports.slice(0, 10)
+      setMatches(m)
+      setShow(m.length > 0)
+      return
+    }
     const q = val.toLowerCase()
     const m = airports.filter(a =>
       a.code.toLowerCase().indexOf(q) > -1 ||
@@ -96,7 +101,15 @@ export default function AirportAutocomplete({ value, onChange }) {
         value={inputValue}
         onChange={handleInput}
         onKeyDown={handleKeyDown}
-        onFocus={() => { if (matches.length > 0) setShow(true) }}
+        onFocus={() => {
+          if (selected) {
+            setInputValue('')
+            setSelected(null)
+            onChange('')
+          }
+          filter(selected ? '' : inputValue)
+          setShow(true)
+        }}
       />
       <div className={`autocomplete-dropdown ${show ? 'visible' : ''}`}>
         {matches.map((a, i) => (
