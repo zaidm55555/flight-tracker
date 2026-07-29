@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import PriceChart from '../components/PriceChart'
 import Spinner from '../components/Spinner'
+
+const searchCache = {}
+const historyCache = {}
 
 export default function SearchResults() {
   const [params] = useSearchParams()
@@ -13,14 +16,28 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
   const [historyData, setHistoryData] = useState({})
+  const fetchId = useRef(0)
 
   useEffect(() => {
     if (!from || !to || !date) { setLoading(false); return }
-    setLoading(true)
+    const key = `${from}|${to}|${date}`
+    const cached = searchCache[key]
+    if (cached) {
+      setFlights(cached)
+      setLoading(false)
+    } else {
+      setLoading(true)
+    }
+    const id = ++fetchId.current
     fetch(`/search?from=${from}&to=${to}&date=${date}`)
       .then(r => r.json())
-      .then(data => { setFlights(data); setLoading(false) })
-      .catch(() => setLoading(false))
+      .then(data => {
+        if (id !== fetchId.current) return
+        searchCache[key] = data
+        setFlights(data)
+        setLoading(false)
+      })
+      .catch(() => { if (id === fetchId.current) setLoading(false) })
   }, [from, to, date])
 
   function toggleCard(fid) {
@@ -30,9 +47,17 @@ export default function SearchResults() {
     }
     setExpanded(fid)
     if (!historyData[fid]) {
+      const cached = historyCache[fid]
+      if (cached) {
+        setHistoryData(prev => ({ ...prev, [fid]: cached }))
+        return
+      }
       fetch(`/api/history?flight_id=${encodeURIComponent(fid)}&from=${from}&to=${to}`)
         .then(r => r.json())
-        .then(data => setHistoryData(prev => ({ ...prev, [fid]: data })))
+        .then(data => {
+          historyCache[fid] = data
+          setHistoryData(prev => ({ ...prev, [fid]: data }))
+        })
         .catch(() => {})
     }
   }
