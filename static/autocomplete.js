@@ -40,10 +40,10 @@ function setupAirportAutocomplete(inputId, hiddenId) {
     matches.forEach(function(a, i) {
       var item = document.createElement('div');
       item.className = 'autocomplete-item';
-      item.innerHTML = '<span class="airport-code">' + a.code + '</span> '
-        + '<span class="airport-city">' + a.city + '</span> '
-        + '<span class="airport-name">' + a.name + '</span> '
-        + '<span class="airport-country">' + a.country + '</span>';
+      item.innerHTML = '<span class="code">' + a.code + '</span> '
+        + '<span class="city">' + a.city + '</span> '
+        + '<span class="name">' + a.name + '</span> '
+        + '<span class="country">' + a.country + '</span>';
       item.addEventListener('click', function() { selectAirport(a, input, hidden, dropdown); });
       item.addEventListener('mousedown', function(e) { e.preventDefault(); });
       dropdown.appendChild(item);
