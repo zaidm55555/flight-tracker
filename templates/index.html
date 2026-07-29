@@ -102,6 +102,55 @@
             .btn-add:active { border-color: #4da6ff; color: #4da6ff; background: #0f3460; }
             .empty { color: #8899aa; }
         }
+
+        .search-card { margin-bottom: 16px; }
+        .search-card .form-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .search-card .form-group { flex: 1; position: relative; }
+        .search-card .form-group input[type="text"] {
+            width: 100%; min-height: 44px; padding: 0 10px;
+            border: 1px solid #dadce0; border-radius: 10px;
+            font-size: 0.9rem; font-family: inherit; color: #202124;
+            outline: none; background: #f8f9fa;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            -webkit-appearance: none; appearance: none;
+        }
+        .search-card .form-group input[type="text"]:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
+        .search-card .form-group input[type="text"]::placeholder { color: #9aa0a6; }
+        .search-card .form-group input[type="hidden"] { display: none; }
+        .search-card .btn-search {
+            width: 100%; padding: 12px; background: #1a73e8; color: white; border: none;
+            border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+            transition: background 0.15s, transform 0.1s; -webkit-tap-highlight-color: transparent;
+        }
+        .search-card .btn-search:active { background: #1557b0; transform: scale(0.98); }
+        .autocomplete-dropdown {
+            position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+            background: white; border: 1px solid #dadce0; border-radius: 10px;
+            margin-top: 3px; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            display: none; max-height: 220px; overflow-y: auto;
+        }
+        .autocomplete-item {
+            padding: 8px 10px; cursor: pointer; font-size: 0.82rem;
+            border-bottom: 1px solid #f0f2f5; line-height: 1.3;
+        }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item.active, .autocomplete-item:active { background: #e8f0fe; }
+        .airport-code { font-weight: 700; color: #1a73e8; }
+        .airport-city { color: #202124; }
+        .airport-name { color: #5f6368; font-size: 0.72rem; display: block; }
+        .airport-country { color: #9aa0a6; font-size: 0.65rem; }
+
+        @media (prefers-color-scheme: dark) {
+            .search-card .form-group input[type="text"] { background: #0f3460; border-color: #1a4a7a; color: #e0e0e0; }
+            .search-card .form-group input[type="text"]:focus { background: #0f3460; border-color: #4da6ff; }
+            .autocomplete-dropdown { background: #16213e; border-color: #1a4a7a; }
+            .autocomplete-item { border-color: #1a2a4a; }
+            .autocomplete-item.active, .autocomplete-item:active { background: #1a2a4a; }
+            .airport-code { color: #4da6ff; }
+            .airport-city { color: #e0e0e0; }
+            .airport-name { color: #8899aa; }
+            .airport-country { color: #556688; }
+        }
     </style>
 </head>
 <body>
@@ -114,6 +163,22 @@
             <div>Routes: <span>{{ total_active }}</span></div>
             <div>Records: <span id="totalRecords">--</span></div>
             <div>Last scrape: <span id="lastScrape">--</span></div>
+        </div>
+
+        <div class="card search-card">
+            <form action="/search" method="get" id="searchForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" id="searchFrom" placeholder="From city" required autocomplete="off">
+                        <input type="hidden" name="from" id="searchFromCode">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="searchTo" placeholder="To city" required autocomplete="off">
+                        <input type="hidden" name="to" id="searchToCode">
+                    </div>
+                </div>
+                <button type="submit" class="btn-search">Search Flights</button>
+            </form>
         </div>
 
         {% if routes %}
@@ -149,7 +214,10 @@
 
         <div class="footer">Powered by Google Flights · Updates every 4 hours</div>
     </div>
+    <script src="/static/autocomplete.js"></script>
     <script>
+        setupAirportAutocomplete('searchFrom', 'searchFromCode');
+        setupAirportAutocomplete('searchTo', 'searchToCode');
         async function loadStats() {
             try {
                 const r = await fetch('/api/stats');

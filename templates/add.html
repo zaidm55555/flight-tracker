@@ -21,7 +21,7 @@
         }
         .container { max-width: 420px; width: 100%; }
         .back { text-decoration: none; color: #1a73e8; font-size: 0.9rem; font-weight: 500; display: inline-block; margin-bottom: 20px; }
-        .back:hover { text-decoration: underline; }
+        .back:active { text-decoration: underline; }
         .card {
             background: white; border-radius: 20px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
@@ -29,12 +29,12 @@
         }
         .card h2 { font-size: 1.3rem; font-weight: 600; color: #202124; margin-bottom: 4px; }
         .card p { color: #5f6368; font-size: 0.85rem; margin-bottom: 20px; }
-        .form-group { margin-bottom: 14px; }
+        .form-group { margin-bottom: 14px; position: relative; }
         .form-group label {
             display: block; font-size: 0.75rem; font-weight: 600; color: #5f6368;
             margin-bottom: 5px; letter-spacing: 0.3px; text-transform: uppercase;
         }
-        .form-group input {
+        .form-group input[type="text"] {
             width: 100%; min-height: 48px; padding: 0 12px;
             border: 1px solid #dadce0; border-radius: 12px;
             font-size: 1rem; font-family: inherit; color: #202124;
@@ -42,8 +42,9 @@
             transition: border-color 0.15s, box-shadow 0.15s;
             -webkit-appearance: none; appearance: none;
         }
-        .form-group input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
-        .form-group input::placeholder { color: #9aa0a6; }
+        .form-group input[type="text"]:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
+        .form-group input[type="text"]::placeholder { color: #9aa0a6; }
+        .form-group input[type="hidden"] { display: none; }
         .form-row { display: flex; gap: 10px; }
         .form-row .form-group { flex: 1; }
         .btn {
@@ -55,6 +56,23 @@
         .error { color: #d93025; font-size: 0.85rem; margin-top: 10px; text-align: center; }
         .success { color: #137333; font-size: 0.85rem; margin-top: 10px; text-align: center; }
 
+        .autocomplete-dropdown {
+            position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+            background: white; border: 1px solid #dadce0; border-radius: 12px;
+            margin-top: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            display: none; max-height: 240px; overflow-y: auto;
+        }
+        .autocomplete-item {
+            padding: 10px 12px; cursor: pointer; font-size: 0.85rem;
+            border-bottom: 1px solid #f0f2f5; line-height: 1.4;
+        }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item.active, .autocomplete-item:active { background: #e8f0fe; }
+        .airport-code { font-weight: 700; color: #1a73e8; }
+        .airport-city { color: #202124; }
+        .airport-name { color: #5f6368; font-size: 0.75rem; display: block; }
+        .airport-country { color: #9aa0a6; font-size: 0.7rem; }
+
         @media (max-width: 420px) {
             body { padding: 12px; padding-top: 40px; }
             .card { padding: 20px 16px; }
@@ -65,8 +83,15 @@
             .card h2 { color: #e0e0e0; }
             .card p { color: #8899aa; }
             .form-group label { color: #8899aa; }
-            .form-group input { background: #0f3460; border-color: #1a4a7a; color: #e0e0e0; }
-            .form-group input:focus { background: #0f3460; border-color: #4da6ff; }
+            .form-group input[type="text"] { background: #0f3460; border-color: #1a4a7a; color: #e0e0e0; }
+            .form-group input[type="text"]:focus { background: #0f3460; border-color: #4da6ff; }
+            .autocomplete-dropdown { background: #16213e; border-color: #1a4a7a; }
+            .autocomplete-item { border-color: #1a2a4a; }
+            .autocomplete-item.active, .autocomplete-item:active { background: #1a2a4a; }
+            .airport-code { color: #4da6ff; }
+            .airport-city { color: #e0e0e0; }
+            .airport-name { color: #8899aa; }
+            .airport-country { color: #556688; }
         }
     </style>
 </head>
@@ -79,12 +104,14 @@
             <form id="routeForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="origin">From</label>
-                        <input type="text" id="origin" placeholder="AMD" maxlength="4" required autocomplete="off" autocapitalize="characters">
+                        <label for="originInput">From</label>
+                        <input type="text" id="originInput" placeholder="Search city or airport" required autocomplete="off">
+                        <input type="hidden" id="originCode" name="origin">
                     </div>
                     <div class="form-group">
-                        <label for="destination">To</label>
-                        <input type="text" id="destination" placeholder="BLR" maxlength="4" required autocomplete="off" autocapitalize="characters">
+                        <label for="destInput">To</label>
+                        <input type="text" id="destInput" placeholder="Search city or airport" required autocomplete="off">
+                        <input type="hidden" id="destCode" name="destination">
                     </div>
                 </div>
                 <div class="form-group">
@@ -96,17 +123,21 @@
             </form>
         </div>
     </div>
+    <script src="/static/autocomplete.js"></script>
     <script>
+        setupAirportAutocomplete('originInput', 'originCode');
+        setupAirportAutocomplete('destInput', 'destCode');
+
         document.getElementById('routeForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const origin = document.getElementById('origin').value.trim().toUpperCase();
-            const destination = document.getElementById('destination').value.trim().toUpperCase();
+            const origin = document.getElementById('originCode').value;
+            const destination = document.getElementById('destCode').value;
             const date = document.getElementById('date').value;
             const msg = document.getElementById('message');
             msg.style.display = 'none';
 
             if (!origin || !destination || !date) {
-                msg.textContent = 'Fill in all fields';
+                msg.textContent = 'Select airports from the suggestions';
                 msg.style.display = 'block';
                 return;
             }
