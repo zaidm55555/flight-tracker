@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import AirportAutocomplete from '../components/AirportAutocomplete'
 import { fetchStats } from '../api'
+import Spinner from '../components/Spinner'
 
 function todayStr() {
   const d = new Date()
