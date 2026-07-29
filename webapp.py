@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
-from datetime import date, datetime
+from datetime import datetime
 import os, pymongo
 from bson.objectid import ObjectId
 
@@ -20,52 +20,27 @@ try:
 except:
     pass
 
-@app.route("/")
-def index():
-    routes = list(routes_col.find({"status": "active"}).sort("added_at", -1)) if routes_col is not None else []
-    for r in routes:
-        r["_id_str"] = str(r["_id"])
-        route_id = f"{r['origin']}_{r['destination']}_{r['date']}"
-        r["flight_count"] = flights_col.count_documents({"route_id": route_id}) if flights_col is not None else 0
-        r["scraped_at_str"] = ""
-        if r.get("last_scraped_at"):
-            try:
-                dt = datetime.fromisoformat(r["last_scraped_at"].replace("Z", "+00:00"))
-                r["scraped_at_str"] = dt.strftime("%b %d, %H:%M")
-            except:
-                r["scraped_at_str"] = str(r["last_scraped_at"])
-    total_routes = routes_col.count_documents({}) if routes_col is not None else 0
-    total_active = len(routes)
-    return render_template("index.html", routes=routes, total_routes=total_routes, total_active=total_active, current_date=date.today().isoformat())
+FRONTEND_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "dist")
 
-@app.route("/add-route")
-def add_route_page():
-    return render_template("add.html", current_date=date.today().isoformat())
-
-@app.route("/manage-routes")
-def manage_routes_page():
-    routes = list(routes_col.find().sort("added_at", -1)) if routes_col is not None else []
-    for r in routes:
-        r["_id_str"] = str(r["_id"])
-        route_id = f"{r['origin']}_{r['destination']}_{r['date']}"
-        r["flight_count"] = flights_col.count_documents({"route_id": route_id}) if flights_col is not None else 0
-        r["scraped_at_str"] = ""
-        if r.get("last_scraped_at"):
-            try:
-                dt = datetime.fromisoformat(r["last_scraped_at"].replace("Z", "+00:00"))
-                r["scraped_at_str"] = dt.strftime("%b %d, %H:%M")
-            except:
-                r["scraped_at_str"] = str(r["last_scraped_at"])
-    return render_template("manage.html", routes=routes)
+def add_route_meta(r):
+    r["_id"] = str(r["_id"])
+    route_id = f"{r['origin']}_{r['destination']}_{r['date']}"
+    r["flight_count"] = flights_col.count_documents({"route_id": route_id}) if flights_col is not None else 0
+    r["scraped_at_str"] = ""
+    if r.get("last_scraped_at"):
+        try:
+            dt = datetime.fromisoformat(r["last_scraped_at"].replace("Z", "+00:00"))
+            r["scraped_at_str"] = dt.strftime("%b %d, %H:%M")
+        except:
+            r["scraped_at_str"] = str(r["last_scraped_at"])
+    r["added_at"] = r.get("added_at", "").isoformat() if isinstance(r.get("added_at"), datetime) else str(r.get("added_at", ""))
+    return r
 
 @app.route("/api/routes", methods=["GET", "POST"])
 def api_routes():
     if request.method == "GET":
         routes = list(routes_col.find().sort("added_at", -1)) if routes_col is not None else []
-        for r in routes:
-            r["_id"] = str(r["_id"])
-            r["added_at"] = r.get("added_at", "").isoformat() if isinstance(r.get("added_at"), datetime) else str(r.get("added_at", ""))
-        return jsonify(routes)
+        return jsonify([add_route_meta(r) for r in routes])
     if request.method == "POST":
         data = request.get_json()
         origin = data.get("origin", "").upper()
@@ -108,7 +83,7 @@ def search():
     d = request.args.get("to","").upper()
     dt = request.args.get("date","")
     if not all([o,d,dt]):
-        return render_template("index.html", error="Fill in all fields", routes=[], total_routes=0, total_active=0, current_date=date.today().isoformat())
+        return jsonify({"error": "Fill in all fields"}), 400
     flights = list(flights_col.find({"origin":o,"destination":d,"date":dt},{"_id":0}).sort("price_numeric",1)) if flights_col is not None else []
     seen = set()
     unique = []
@@ -119,7 +94,7 @@ def search():
             unique.append(f)
         elif not fid:
             unique.append(f)
-    return render_template("results.html", flights=unique, origin=o, destination=d, date=dt)
+    return jsonify(unique)
 
 @app.route("/api/history")
 def history():
@@ -145,6 +120,15 @@ def stats():
     last = flights_col.find_one(sort=[("scraped_at", -1)])
     last_scrape = last["scraped_at"] if last else "N/A"
     return jsonify({"total": total, "routes": route_count, "last_scrape": last_scrape})
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve(path):
+    if path.startswith("api/"):
+        return jsonify({"error": "Not found"}), 404
+    if path and os.path.exists(os.path.join(FRONTEND_DIST, path)):
+        return send_from_directory(FRONTEND_DIST, path)
+    return send_from_directory(FRONTEND_DIST, "index.html")
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
