@@ -28,6 +28,7 @@ body {
 .route-card-link {
   display: block; text-decoration: none; color: inherit; cursor: pointer;
 }
+.chevron { color: #9aa0a6; font-size: 1.3rem; font-weight: 400; line-height: 1; align-self: center; }
 .route-header { display: flex; align-items: center; justify-content: space-between; }
 .route-cities { font-size: 1.1rem; font-weight: 600; color: #202124; }
 .route-cities .arrow { color: #9aa0a6; margin: 0 6px; }
@@ -95,6 +96,7 @@ body {
   .header p { color: #8899aa; }
   .route-cities { color: #e0e0e0; }
   .route-cities .arrow { color: #556688; }
+  .chevron { color: #556688; }
   .route-meta { color: #8899aa; }
   .route-meta .count { color: #e0e0e0; }
   .stats-bar { color: #8899aa; }

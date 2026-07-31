@@ -82,6 +82,7 @@ export default function Home() {
               <div className="route-cities">{r.origin} <span className="arrow">→</span> {r.destination}</div>
               <div className="route-actions">
                 <span className={`badge ${r.status}`}>{r.status}</span>
+                <span className="chevron">›</span>
               </div>
             </div>
             <div className="route-meta">
@@ -100,9 +101,6 @@ export default function Home() {
                   }</span>
                 </>
               )}
-            </div>
-            <div className="route-meta" style={{ marginTop: 12, color: '#1a73e8', fontWeight: 500 }}>
-              View Prices
             </div>
           </Link>
         ))
