@@ -205,6 +205,13 @@ def history():
         {"$sort": {"_id": 1}}
     ]
     data = [{"t": r["_id"], "p": r["p"], "pf": r["pf"]} for r in (flights_col.aggregate(pipe) if flights_col is not None else [])]
+    if not data and added_at:
+        latest = flights_col.find_one(
+            {"flight_id": fid, "origin": o, "destination": d},
+            sort=[("scraped_at", -1)]
+        ) if flights_col is not None else None
+        if latest:
+            data = [{"t": latest["scraped_at"], "p": latest["price_numeric"], "pf": latest["price_formatted"]}]
     return jsonify(data)
 
 @app.route("/api/stats")
