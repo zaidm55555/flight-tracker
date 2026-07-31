@@ -6,6 +6,7 @@ import Spinner from '../components/Spinner'
 export default function ManageRoutes() {
   const [routes, setRoutes] = useState([])
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState(null)
 
   function loadRoutes() {
     setLoading(true)
@@ -26,10 +27,12 @@ export default function ManageRoutes() {
 
   async function handleDelete(id) {
     if (!confirm('Delete this route from your tracking?')) return
+    setDeletingId(id)
     try {
       await deleteRoute(id)
       loadRoutes()
     } catch {}
+    setDeletingId(null)
   }
 
   return (
@@ -63,7 +66,10 @@ export default function ManageRoutes() {
                 ) : (
                   <button className="btn-action btn-resume" onClick={() => handleToggle(r._id)}>Resume</button>
                 )}
-                <button className="btn-action btn-del" onClick={() => handleDelete(r._id)}>Delete</button>
+                <button className="btn-action btn-del" onClick={() => handleDelete(r._id)} disabled={deletingId === r._id}>
+                  {deletingId === r._id && <span className="btn-spinner" />}
+                  {deletingId === r._id ? 'Deleting...' : 'Delete'}
+                </button>
               </div>
             </div>
           ))

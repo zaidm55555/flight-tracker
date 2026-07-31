@@ -15,6 +15,7 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
   const [historyData, setHistoryData] = useState({})
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (!from || !to || !date) { setLoading(false); return }
@@ -27,10 +28,13 @@ export default function SearchResults() {
 
   async function handleDelete() {
     if (!confirm(`Stop tracking ${from} → ${to} on ${date}?`)) return
+    setDeleting(true)
     try {
       await deleteRouteByParams(from, to, date)
       navigate('/')
-    } catch {}
+    } catch {
+      setDeleting(false)
+    }
   }
 
   function toggleCard(fid) {
@@ -62,7 +66,10 @@ export default function SearchResults() {
         <div className="header">
           <h1>{from} → {to} <span>- {date}</span></h1>
           <div className="header-actions">
-            <button className="route-del" onClick={handleDelete}>Delete route</button>
+            <button className="route-del" onClick={handleDelete} disabled={deleting}>
+              {deleting && <span className="btn-spinner" />}
+              {deleting ? 'Deleting...' : 'Delete route'}
+            </button>
             <Link to="/" className="back-link">← Back</Link>
           </div>
         </div>

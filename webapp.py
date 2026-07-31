@@ -98,12 +98,8 @@ def add_route_meta(r):
     route_id = f"{r['origin']}_{r['destination']}_{r['date']}"
     r["flight_count"] = 0
     if flights_col is not None:
-        match = {"route_id": route_id}
-        cutoff = normalize_added_at(r.get("added_at"))
-        if cutoff:
-            match["scraped_at"] = {"$gte": cutoff}
         pipe = [
-            {"$match": match},
+            {"$match": {"route_id": route_id}},
             {"$group": {"_id": "$flight_id"}}
         ]
         r["flight_count"] = len(list(flights_col.aggregate(pipe)))
@@ -180,19 +176,16 @@ def search():
     added_at = route_added_at_str(o, d, dt)
     if not added_at:
         return jsonify({"error": "Route not tracked"}), 403
-    filters = {"origin": o, "destination": d, "date": dt, "scraped_at": {"$gte": added_at}}
-    flights = list(flights_col.find(filters, {"_id": 0}).sort("scraped_at", -1)) if flights_col is not None else []
-    seen = set()
-    unique = []
+    pipe = [
+        {"$match": {"origin": o, "destination": d, "date": dt}},
+        {"$sort": {"scraped_at": -1}},
+        {"$group": {"_id": "$flight_id", "doc": {"$first": "$$ROOT"}}}
+    ]
+    flights = [r["doc"] for r in (flights_col.aggregate(pipe) if flights_col is not None else [])]
     for f in flights:
-        fid = f.get("flight_id", "")
-        if fid and fid not in seen:
-            seen.add(fid)
-            unique.append(f)
-        elif not fid:
-            unique.append(f)
-    unique.sort(key=lambda f: f.get("price_numeric", 0))
-    return jsonify(unique)
+        f.pop("_id", None)
+    flights.sort(key=lambda f: f.get("price_numeric", 0))
+    return jsonify(flights)
 
 @app.route("/api/history")
 def history():

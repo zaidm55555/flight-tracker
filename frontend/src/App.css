@@ -86,6 +86,12 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .spinner p { color: #5f6368; font-size: 0.85rem; }
+.btn-spinner {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid currentColor; border-top-color: transparent;
+  animation: spin 0.7s linear infinite; display: inline-block;
+  vertical-align: middle; margin-right: 6px;
+}
 
 @media (prefers-color-scheme: dark) {
   .spinner p { color: #8899aa; }
