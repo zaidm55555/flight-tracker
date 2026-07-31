@@ -41,7 +41,12 @@ def login():
 
 @app.route("/callback")
 def callback():
-    token = oauth.google.authorize_access_token()
+    if "error" in request.args or "code" not in request.args:
+        return redirect("/")
+    try:
+        token = oauth.google.authorize_access_token()
+    except Exception:
+        return redirect("/")
     user = token.get("userinfo")
     session["user"] = {
         "name": user.get("name", ""),
