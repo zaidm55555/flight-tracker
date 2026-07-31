@@ -41,8 +41,8 @@ export async function searchFlights(from, to, date) {
   return r.json()
 }
 
-export async function fetchHistory(flightId, from, to) {
-  const params = new URLSearchParams({ flight_id: flightId, from, to })
+export async function fetchHistory(flightId, from, to, date) {
+  const params = new URLSearchParams({ flight_id: flightId, from, to, date })
   const r = await fetch(`${BASE}/api/history?${params}`)
   if (!r.ok) throw new Error('Failed to fetch history')
   return r.json()

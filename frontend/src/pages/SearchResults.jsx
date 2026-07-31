@@ -30,7 +30,7 @@ export default function SearchResults() {
     }
     setExpanded(fid)
     if (!historyData[fid]) {
-      fetch(`/api/history?flight_id=${encodeURIComponent(fid)}&from=${from}&to=${to}`)
+      fetch(`/api/history?flight_id=${encodeURIComponent(fid)}&from=${from}&to=${to}&date=${date}`)
         .then(r => r.json())
         .then(data => setHistoryData(prev => ({ ...prev, [fid]: data })))
         .catch(() => {})

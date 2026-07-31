@@ -75,6 +75,17 @@ def require_login():
 def user_email():
     return session.get("user", {}).get("email", "")
 
+def route_added_at_str(o, d, dt):
+    if routes_col is None:
+        return None
+    route = routes_col.find_one({"origin": o, "destination": d, "date": dt, "email": user_email()})
+    if not route:
+        return None
+    added = route.get("added_at")
+    if isinstance(added, datetime):
+        return added.isoformat() + "Z"
+    return str(added) if added else None
+
 def add_route_meta(r):
     r["_id"] = str(r["_id"])
     route_id = f"{r['origin']}_{r['destination']}_{r['date']}"
@@ -147,7 +158,11 @@ def search():
     dt = request.args.get("date","")
     if not all([o,d,dt]):
         return jsonify({"error": "Fill in all fields"}), 400
-    flights = list(flights_col.find({"origin":o,"destination":d,"date":dt},{"_id":0}).sort("scraped_at",-1)) if flights_col is not None else []
+    filters = {"origin": o, "destination": d, "date": dt}
+    added_at = route_added_at_str(o, d, dt)
+    if added_at:
+        filters["scraped_at"] = {"$gte": added_at}
+    flights = list(flights_col.find(filters, {"_id": 0}).sort("scraped_at", -1)) if flights_col is not None else []
     seen = set()
     unique = []
     for f in flights:
@@ -165,14 +180,19 @@ def history():
     fid = request.args.get("flight_id","")
     o = request.args.get("from","")
     d = request.args.get("to","")
+    dt = request.args.get("date","")
     if not all([fid, o, d]):
         return jsonify([])
+    match = {"flight_id": fid, "origin": o, "destination": d}
+    added_at = route_added_at_str(o, d, dt)
+    if added_at:
+        match["scraped_at"] = {"$gte": added_at}
     pipe = [
-        {"$match":{"flight_id":fid,"origin":o,"destination":d}},
-        {"$group":{"_id":"$scraped_at","p":{"$first":"$price_numeric"},"pf":{"$first":"$price_formatted"}}},
-        {"$sort":{"_id":1}}
+        {"$match": match},
+        {"$group": {"_id": "$scraped_at", "p": {"$first": "$price_numeric"}, "pf": {"$first": "$price_formatted"}}},
+        {"$sort": {"_id": 1}}
     ]
-    data = [{"t":r["_id"],"p":r["p"],"pf":r["pf"]} for r in (flights_col.aggregate(pipe) if flights_col is not None else [])]
+    data = [{"t": r["_id"], "p": r["p"], "pf": r["pf"]} for r in (flights_col.aggregate(pipe) if flights_col is not None else [])]
     return jsonify(data)
 
 @app.route("/api/stats")
