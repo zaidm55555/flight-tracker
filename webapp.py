@@ -81,18 +81,29 @@ def route_added_at_str(o, d, dt):
     route = routes_col.find_one({"origin": o, "destination": d, "date": dt, "email": user_email()})
     if not route:
         return None
-    added = route.get("added_at")
+    return normalize_added_at(route.get("added_at"))
+
+def normalize_added_at(added):
     if isinstance(added, datetime):
         return added.isoformat() + "Z"
-    return str(added) if added else None
+    added = str(added)
+    if not added:
+        return None
+    if added.endswith("Z") or "T" in added:
+        return added
+    return added.replace(" ", "T") + "Z"
 
 def add_route_meta(r):
     r["_id"] = str(r["_id"])
     route_id = f"{r['origin']}_{r['destination']}_{r['date']}"
     r["flight_count"] = 0
     if flights_col is not None:
+        match = {"route_id": route_id}
+        cutoff = normalize_added_at(r.get("added_at"))
+        if cutoff:
+            match["scraped_at"] = {"$gte": cutoff}
         pipe = [
-            {"$match": {"route_id": route_id}},
+            {"$match": match},
             {"$group": {"_id": "$flight_id"}}
         ]
         r["flight_count"] = len(list(flights_col.aggregate(pipe)))
