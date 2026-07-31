@@ -25,6 +25,9 @@ body {
   transition: box-shadow 0.15s;
 }
 .card:active { box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.route-card-link {
+  display: block; text-decoration: none; color: inherit; cursor: pointer;
+}
 .route-header { display: flex; align-items: center; justify-content: space-between; }
 .route-cities { font-size: 1.1rem; font-weight: 600; color: #202124; }
 .route-cities .arrow { color: #9aa0a6; margin: 0 6px; }

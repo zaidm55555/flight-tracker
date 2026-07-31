@@ -73,7 +73,11 @@ export default function Home() {
         <Spinner text="Loading routes..." />
       ) : routes.filter(r => r.status === 'active').length > 0 ? (
         routes.filter(r => r.status === 'active').map(r => (
-          <div className="card" key={r._id}>
+          <Link
+            key={r._id}
+            to={`/search?from=${r.origin}&to=${r.destination}&date=${r.date}`}
+            className="card route-card-link"
+          >
             <div className="route-header">
               <div className="route-cities">{r.origin} <span className="arrow">→</span> {r.destination}</div>
               <div className="route-actions">
@@ -97,10 +101,10 @@ export default function Home() {
                 </>
               )}
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-              <Link to={`/search?from=${r.origin}&to=${r.destination}&date=${r.date}`} className="btn btn-primary btn-sm">View Prices</Link>
+            <div className="route-meta" style={{ marginTop: 12, color: '#1a73e8', fontWeight: 500 }}>
+              View Prices
             </div>
-          </div>
+          </Link>
         ))
       ) : (
         <div className="empty">

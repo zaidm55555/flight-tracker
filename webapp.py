@@ -25,7 +25,13 @@ FRONTEND_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fronte
 def add_route_meta(r):
     r["_id"] = str(r["_id"])
     route_id = f"{r['origin']}_{r['destination']}_{r['date']}"
-    r["flight_count"] = flights_col.count_documents({"route_id": route_id}) if flights_col is not None else 0
+    r["flight_count"] = 0
+    if flights_col is not None:
+        pipe = [
+            {"$match": {"route_id": route_id}},
+            {"$group": {"_id": "$flight_id"}}
+        ]
+        r["flight_count"] = len(list(flights_col.aggregate(pipe)))
     r["scraped_at_str"] = ""
     if r.get("last_scraped_at"):
         try:
@@ -84,7 +90,7 @@ def search():
     dt = request.args.get("date","")
     if not all([o,d,dt]):
         return jsonify({"error": "Fill in all fields"}), 400
-    flights = list(flights_col.find({"origin":o,"destination":d,"date":dt},{"_id":0}).sort("price_numeric",1)) if flights_col is not None else []
+    flights = list(flights_col.find({"origin":o,"destination":d,"date":dt},{"_id":0}).sort("scraped_at",-1)) if flights_col is not None else []
     seen = set()
     unique = []
     for f in flights:
@@ -94,6 +100,7 @@ def search():
             unique.append(f)
         elif not fid:
             unique.append(f)
+    unique.sort(key=lambda f: f.get("price_numeric", 0))
     return jsonify(unique)
 
 @app.route("/api/history")
