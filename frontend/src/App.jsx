@@ -40,7 +40,7 @@ export default function App() {
     <>
       <Navbar user={user} />
       <Routes>
-        <Route path="/" element={<Home user={user} />} />
+        <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/add-route" element={<AddRoute />} />
         <Route path="/manage-routes" element={<ManageRoutes />} />

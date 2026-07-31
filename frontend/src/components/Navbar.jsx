@@ -1,9 +1,6 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 export default function Navbar({ user }) {
-  const { pathname } = useLocation()
-  const showUser = user && pathname !== '/'
-
   return (
     <header className="navbar">
       <Link to="/" className="navbar-brand" aria-label="FlightPulse home">
@@ -18,13 +15,12 @@ export default function Navbar({ user }) {
         <div className="navbar-plane">✈</div>
       </div>
 
-      {showUser && (
+      {user && (
         <div className="navbar-user">
           {user.picture
             ? <img className="user-avatar" src={user.picture} alt={user.name} referrerPolicy="no-referrer" />
             : <div className="user-avatar user-avatar-fallback">{user.name?.charAt(0) || 'U'}</div>}
-          <span className="user-name navbar-user-name">{user.name}</span>
-          <a href="/logout" className="user-logout">Log out</a>
+          <a href="/logout" className="user-logout" title="Log out">Log out</a>
         </div>
       )}
     </header>

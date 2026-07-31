@@ -5,11 +5,11 @@ Chart.register(...registerables)
 function themeColors() {
   const dark = window.matchMedia?.('(prefers-color-scheme: dark)').matches
   return {
-    line: dark ? '#60a5fa' : '#2563eb',
-    fillTop: dark ? 'rgba(96,165,250,0.25)' : 'rgba(37,99,235,0.18)',
-    fillBottom: dark ? 'rgba(96,165,250,0.01)' : 'rgba(37,99,235,0.01)',
-    grid: dark ? 'rgba(148,163,184,0.12)' : 'rgba(15,23,42,0.06)',
-    tick: dark ? '#94a3b8' : '#5b6b81'
+    line: dark ? '#f472b6' : '#db2777',
+    fillTop: dark ? 'rgba(244,114,182,0.25)' : 'rgba(219,39,119,0.18)',
+    fillBottom: dark ? 'rgba(244,114,182,0.01)' : 'rgba(219,39,119,0.01)',
+    grid: dark ? 'rgba(182,149,160,0.12)' : 'rgba(80,20,40,0.06)',
+    tick: dark ? '#b695a0' : '#82646d'
   }
 }
 

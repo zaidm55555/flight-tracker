@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Spinner from '../components/Spinner'
 
-export default function Home({ user }) {
+export default function Home() {
   const [routes, setRoutes] = useState([])
   const [loadingRoutes, setLoadingRoutes] = useState(true)
-  const [selectedRoute, setSelectedRoute] = useState('')
-  const navigate = useNavigate()
 
   useEffect(() => {
     fetch('/api/routes')
@@ -14,13 +12,6 @@ export default function Home({ user }) {
       .then(data => { setRoutes(data); setLoadingRoutes(false) })
       .catch(() => setLoadingRoutes(false))
   }, [])
-
-  function handleSubmit(e) {
-    e.preventDefault()
-    if (!selectedRoute) return
-    const r = routes.find(x => x._id === selectedRoute)
-    if (r) navigate(`/search?from=${r.origin}&to=${r.destination}&date=${r.date}`)
-  }
 
   return (
     <div className="container">
@@ -45,35 +36,7 @@ export default function Home({ user }) {
               <div className="brand-tag">Track flight prices across routes</div>
             </div>
           </div>
-          {user && (
-            <div className="hero-user">
-              {user.picture
-                ? <img className="user-avatar" src={user.picture} alt={user.name} referrerPolicy="no-referrer" />
-                : <div className="user-avatar user-avatar-fallback">{user.name?.charAt(0) || 'U'}</div>}
-              <span className="user-name">{user.name}</span>
-              <a href="/logout" className="user-logout">Log out</a>
-            </div>
-          )}
         </div>
-      </div>
-
-      <div className="card search-card">
-        <form onSubmit={handleSubmit}>
-          <select
-            className="field-input"
-            value={selectedRoute}
-            onChange={e => setSelectedRoute(e.target.value)}
-            required
-          >
-            <option value="" disabled>Select your tracked route</option>
-            {routes.map(r => (
-              <option key={r._id} value={r._id}>
-                {r.origin} → {r.destination} · {r.date} ({r.status})
-              </option>
-            ))}
-          </select>
-          <button type="submit" className="btn-search">Search Flights</button>
-        </form>
       </div>
 
       {loadingRoutes ? (
