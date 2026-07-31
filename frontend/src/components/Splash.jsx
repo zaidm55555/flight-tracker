@@ -13,7 +13,7 @@ export default function Splash() {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
-    const id = setInterval(() => setIndex(i => (i + 1) % TAGLINES.length), 1800)
+    const id = setInterval(() => setIndex(i => (i + 1) % TAGLINES.length), 3500)
     return () => clearInterval(id)
   }, [])
 

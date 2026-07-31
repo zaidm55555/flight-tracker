@@ -13,17 +13,19 @@ export default function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/me')
-      .then(r => {
-        if (!r.ok) return null
-        return r.json()
-      })
-      .then(data => { setUser(data); setLoading(false) })
-      .catch(() => setLoading(false))
+    let mounted = true
+    const minSplash = new Promise(resolve => setTimeout(resolve, 5000))
+
+    const sessionCheck = fetch('/api/me')
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => { if (mounted) setUser(data) })
+      .catch(() => {})
+
+    Promise.all([sessionCheck, minSplash]).then(() => { if (mounted) setLoading(false) })
 
     const onAuthExpired = () => setUser(null)
     window.addEventListener('auth-expired', onAuthExpired)
-    return () => window.removeEventListener('auth-expired', onAuthExpired)
+    return () => { mounted = false; window.removeEventListener('auth-expired', onAuthExpired) }
   }, [])
 
   if (loading) {

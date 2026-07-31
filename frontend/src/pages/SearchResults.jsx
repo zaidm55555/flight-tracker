@@ -4,7 +4,7 @@ import PriceChart from '../components/PriceChart'
 import Spinner from '../components/Spinner'
 import { deleteRouteByParams, authFetch } from '../api'
 
-const AIRLINE_COLORS = ['#db2777', '#7c3aed', '#f97316', '#059669', '#d97706', '#e11d48', '#a855f7', '#0891b2', '#4f46e5', '#65a30d']
+const AIRLINE_COLORS = ['#0d9488', '#10b981', '#0891b2', '#059669', '#d97706', '#e11d48', '#7c3aed', '#db2777', '#4f46e5', '#65a30d']
 
 function airlineColor(name) {
   let h = 0
