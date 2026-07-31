@@ -24,11 +24,16 @@ export default function Home({ user }) {
 
   return (
     <div className="container">
-      <div className="header">
-        <h1>FlightPulse</h1>
-        <p>Track flight prices across routes</p>
+      <div className="hero">
+        <div className="hero-top">
+          <div className="brand-mark">✈</div>
+          <div>
+            <div className="brand-name">FlightPulse</div>
+            <div className="brand-tag">Track flight prices across routes</div>
+          </div>
+        </div>
         {user && (
-          <div className="user-chip">
+          <div className="hero-user">
             {user.picture
               ? <img className="user-avatar" src={user.picture} alt={user.name} referrerPolicy="no-referrer" />
               : <div className="user-avatar user-avatar-fallback">{user.name?.charAt(0) || 'U'}</div>}
@@ -60,14 +65,19 @@ export default function Home({ user }) {
       {loadingRoutes ? (
         <Spinner text="Loading routes..." />
       ) : routes.filter(r => r.status === 'active').length > 0 ? (
-        routes.filter(r => r.status === 'active').map(r => (
+        routes.filter(r => r.status === 'active').map((r, i) => (
           <Link
             key={r._id}
             to={`/search?from=${r.origin}&to=${r.destination}&date=${r.date}`}
             className="card route-card-link"
+            style={{ animationDelay: `${i * 60}ms` }}
           >
             <div className="route-header">
-              <div className="route-cities">{r.origin} <span className="arrow">→</span> {r.destination}</div>
+              <div className="route-cities">
+                <span className="code-chip">{r.origin}</span>
+                <span className="plane-arrow">✈</span>
+                <span className="code-chip">{r.destination}</span>
+              </div>
               <div className="route-actions">
                 <span className={`badge ${r.status}`}>{r.status}</span>
                 <span className="chevron">›</span>
@@ -80,6 +90,7 @@ export default function Home({ user }) {
               {r.last_scraped_at && (
                 <>
                   <span>·</span>
+                  <span className="live-dot" />
                   <span>Last: {
                     (() => {
                       try {

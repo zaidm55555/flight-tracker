@@ -45,10 +45,10 @@ export default function ManageRoutes() {
         {loading ? (
           <Spinner text="Loading routes..." />
         ) : routes.length > 0 ? (
-          routes.map(r => (
-            <div className="route-card" key={r._id}>
+          routes.map((r, i) => (
+            <div className="route-card" key={r._id} style={{ animationDelay: `${i * 50}ms` }}>
               <div className="card-info">
-                <div className="route">{r.origin} → {r.destination}</div>
+                <div className="route"><span className="code-chip" style={{ fontSize: '0.95rem', padding: '2px 9px' }}>{r.origin}</span> <span className="plane-arrow">✈</span> <span className="code-chip" style={{ fontSize: '0.95rem', padding: '2px 9px' }}>{r.destination}</span></div>
                 <div className="meta">
                   {r.date} · Flights: {r.flight_count || 0} · Updates: {r.scrape_count || 0}
                   {r.last_scraped_at ? ' · Last: ' + (() => {

@@ -1,9 +1,11 @@
 export default function LoginScreen() {
   return (
     <div className="login-page">
+      <div className="login-orb login-orb-1" />
+      <div className="login-orb login-orb-2" />
       <div className="login-card">
         <div className="login-logo">
-          <div className="login-logo-mark">F</div>
+          <div className="login-logo-mark">✈</div>
         </div>
         <h1>FlightPulse</h1>
         <p>Track flight prices across routes</p>
