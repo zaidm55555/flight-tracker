@@ -68,15 +68,16 @@ export default function SearchResults() {
   return (
     <div className="results-body">
       <div style={{ maxWidth: 640, margin: '0 auto' }}>
-        <div className="header">
-          <h1>{from} → {to} <span>- {date}</span></h1>
-          <div className="header-actions">
-            <button className="route-del" onClick={handleDelete} disabled={deleting}>
-              {deleting && <span className="btn-spinner" />}
-              {deleting ? 'Deleting...' : 'Delete route'}
-            </button>
-            <Link to="/" className="back-link">← Back</Link>
+        <div className="results-header">
+          <Link to="/" className="back-btn" aria-label="Back to home">←</Link>
+          <div className="route-title">
+            <div className="route-codes">{from} <span className="arrow">→</span> {to}</div>
+            <div className="route-date">{date}</div>
           </div>
+          <button className="route-del" onClick={handleDelete} disabled={deleting}>
+            {deleting && <span className="btn-spinner" />}
+            {deleting ? 'Deleting...' : 'Delete'}
+          </button>
         </div>
 
         {loading ? (
