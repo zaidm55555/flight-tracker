@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import AirportAutocomplete from '../components/AirportAutocomplete'
 import { addRoute } from '../api'
 
@@ -17,6 +17,7 @@ export default function AddRoute() {
   const [msg, setMsg] = useState('')
   const [msgType, setMsgType] = useState('')
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -29,9 +30,9 @@ export default function AddRoute() {
     setLoading(true)
     try {
       await addRoute(origin, dest, date)
-      setMsg('Route added! Redirecting...')
+      setMsg('Route added! Showing prices...')
       setMsgType('success')
-      setTimeout(() => { window.location.href = '/' }, 1000)
+      setTimeout(() => { navigate(`/search?from=${origin}&to=${dest}&date=${date}`) }, 800)
     } catch (err) {
       setMsg(err.message)
       setMsgType('error')
