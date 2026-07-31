@@ -64,7 +64,7 @@ export default function PriceChart({ data }) {
   }, [data])
 
   if (!data || data.length === 0) {
-    return <div className="chart-placeholder">No price history yet</div>
+    return <div className="chart-placeholder">No price history yet for this flight</div>
   }
 
   return (
