@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import PriceChart from '../components/PriceChart'
 import Spinner from '../components/Spinner'
-import { deleteRouteByParams } from '../api'
+import { deleteRouteByParams, authFetch } from '../api'
 
 export default function SearchResults() {
   const [params] = useSearchParams()
@@ -21,7 +21,7 @@ export default function SearchResults() {
   useEffect(() => {
     if (!from || !to || !date) { setLoading(false); return }
     setLoading(true)
-    fetch(`/search?from=${from}&to=${to}&date=${date}`)
+    authFetch(`/search?from=${from}&to=${to}&date=${date}`)
       .then(r => r.json())
       .then(data => { setFlights(data); setLoading(false) })
       .catch(() => setLoading(false))
@@ -46,7 +46,7 @@ export default function SearchResults() {
     setExpanded(fid)
     if (!historyData[fid]) {
       setHistoryLoading(fid)
-      fetch(`/api/history?flight_id=${encodeURIComponent(fid)}&from=${from}&to=${to}&date=${date}`)
+      authFetch(`/api/history?flight_id=${encodeURIComponent(fid)}&from=${from}&to=${to}&date=${date}`)
         .then(r => r.json())
         .then(data => {
           setHistoryData(prev => ({ ...prev, [fid]: data }))

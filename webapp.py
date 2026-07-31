@@ -1,13 +1,18 @@
 from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 import os, pymongo
 from bson.objectid import ObjectId
 from authlib.integrations.flask_client import OAuth
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 load_dotenv("atlas-credentials.env")
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
 
 oauth = OAuth(app)
 if os.getenv("GOOGLE_CLIENT_ID") and os.getenv("GOOGLE_CLIENT_SECRET"):
@@ -48,6 +53,7 @@ def callback():
     except Exception:
         return redirect("/")
     user = token.get("userinfo")
+    session.permanent = True
     session["user"] = {
         "name": user.get("name", ""),
         "email": user.get("email", ""),
@@ -68,6 +74,7 @@ def me():
 
 @app.before_request
 def require_login():
+    app.config["SESSION_COOKIE_SECURE"] = request.is_secure
     if (request.path.startswith("/api/") and request.path != "/api/me") or request.path == "/search":
         if "user" not in session:
             return jsonify({"error": "Not logged in"}), 401

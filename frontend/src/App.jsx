@@ -19,6 +19,10 @@ export default function App() {
       })
       .then(data => { setUser(data); setLoading(false) })
       .catch(() => setLoading(false))
+
+    const onAuthExpired = () => setUser(null)
+    window.addEventListener('auth-expired', onAuthExpired)
+    return () => window.removeEventListener('auth-expired', onAuthExpired)
   }, [])
 
   if (loading) {
