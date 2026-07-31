@@ -47,7 +47,7 @@ export default function ManageRoutes() {
               <div className="card-info">
                 <div className="route">{r.origin} → {r.destination}</div>
                 <div className="meta">
-                  {r.date} · Flights: {r.flight_count || 0} · Scrapes: {r.scrape_count || 0}
+                  {r.date} · Flights: {r.flight_count || 0} · Updates: {r.scrape_count || 0}
                   {r.last_scraped_at ? ' · Last: ' + (() => {
                     try {
                       return new Date(r.last_scraped_at.replace('Z', '+00:00')).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })

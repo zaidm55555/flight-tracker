@@ -96,7 +96,7 @@ export default function SearchResults() {
         ) : (
           <div className="no-flights">
             <p>No prices available for this route yet.</p>
-            <p>The first scrape hasn't run — prices will appear here after the next update.</p>
+            <p>The first price check hasn't run yet — prices will appear here after the next update.</p>
             <Link to="/">Back to home</Link>
           </div>
         )}
