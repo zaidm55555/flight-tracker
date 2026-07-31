@@ -75,7 +75,7 @@ def me():
 @app.before_request
 def require_login():
     app.config["SESSION_COOKIE_SECURE"] = request.is_secure
-    if (request.path.startswith("/api/") and request.path != "/api/me") or request.path == "/search":
+    if (request.path.startswith("/api/") and request.path != "/api/me"):
         if "user" not in session:
             return jsonify({"error": "Not logged in"}), 401
 
@@ -173,7 +173,7 @@ def toggle_route(route_id):
     routes_col.update_one({"_id": ObjectId(route_id)}, {"$set": {"status": new_status}})
     return jsonify({"ok": True, "status": new_status})
 
-@app.route("/search")
+@app.route("/api/search")
 def search():
     o = request.args.get("from","").upper()
     d = request.args.get("to","").upper()

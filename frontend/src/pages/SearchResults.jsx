@@ -21,7 +21,7 @@ export default function SearchResults() {
   useEffect(() => {
     if (!from || !to || !date) { setLoading(false); return }
     setLoading(true)
-    authFetch(`/search?from=${from}&to=${to}&date=${date}`)
+    authFetch(`/api/search?from=${from}&to=${to}&date=${date}`)
       .then(r => r.json())
       .then(data => { setFlights(data); setLoading(false) })
       .catch(() => setLoading(false))
