@@ -72,6 +72,9 @@ def require_login():
         if "user" not in session:
             return jsonify({"error": "Not logged in"}), 401
 
+def user_email():
+    return session.get("user", {}).get("email", "")
+
 def add_route_meta(r):
     r["_id"] = str(r["_id"])
     route_id = f"{r['origin']}_{r['destination']}_{r['date']}"
@@ -95,7 +98,8 @@ def add_route_meta(r):
 @app.route("/api/routes", methods=["GET", "POST"])
 def api_routes():
     if request.method == "GET":
-        routes = list(routes_col.find().sort("added_at", -1)) if routes_col is not None else []
+        email = user_email()
+        routes = list(routes_col.find({"email": email}).sort("added_at", -1)) if routes_col is not None else []
         return jsonify([add_route_meta(r) for r in routes])
     if request.method == "POST":
         data = request.get_json()
@@ -108,11 +112,12 @@ def api_routes():
             datetime.strptime(dt, "%Y-%m-%d")
         except:
             return jsonify({"error": "Invalid date format"}), 400
-        existing = routes_col.find_one({"origin": origin, "destination": dest, "date": dt})
+        email = user_email()
+        existing = routes_col.find_one({"origin": origin, "destination": dest, "date": dt, "email": email})
         if existing:
             return jsonify({"error": "Route already tracked"}), 409
         doc = {
-            "origin": origin, "destination": dest, "date": dt,
+            "origin": origin, "destination": dest, "date": dt, "email": email,
             "status": "active", "added_at": datetime.utcnow().isoformat() + "Z",
             "last_scraped_at": None, "scrape_count": 0
         }
@@ -121,12 +126,14 @@ def api_routes():
 
 @app.route("/api/routes/<route_id>", methods=["DELETE"])
 def delete_route(route_id):
-    routes_col.delete_one({"_id": ObjectId(route_id)})
+    res = routes_col.delete_one({"_id": ObjectId(route_id), "email": user_email()})
+    if res.deleted_count == 0:
+        return jsonify({"error": "Not found"}), 404
     return jsonify({"ok": True})
 
 @app.route("/api/routes/<route_id>/toggle", methods=["POST"])
 def toggle_route(route_id):
-    route = routes_col.find_one({"_id": ObjectId(route_id)})
+    route = routes_col.find_one({"_id": ObjectId(route_id), "email": user_email()})
     if not route:
         return jsonify({"error": "Not found"}), 404
     new_status = "paused" if route["status"] == "active" else "active"
@@ -173,7 +180,7 @@ def stats():
     if flights_col is None:
         return jsonify({"total": 0, "routes": 0, "last_scrape": "N/A"})
     total = flights_col.count_documents({})
-    route_count = routes_col.count_documents({"status": "active"})
+    route_count = routes_col.count_documents({"status": "active", "email": user_email()})
     last = flights_col.find_one(sort=[("scraped_at", -1)])
     last_scrape = last["scraped_at"] if last else "N/A"
     return jsonify({"total": total, "routes": route_count, "last_scrape": last_scrape})
