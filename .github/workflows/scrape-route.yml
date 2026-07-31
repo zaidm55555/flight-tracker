@@ -13,6 +13,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4
@@ -22,10 +24,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install playwright
-          playwright install chromium
+          pip install -q playwright
+          pip install -r requirements.txt &
+          PIP_PID=$!
           playwright install-deps chromium
+          wait $PIP_PID
+          playwright install chromium
 
       - name: Scrape route
         run: python flight_scraper.py -f "${{ github.event.client_payload.origin }}" -t "${{ github.event.client_payload.destination }}" -d "${{ github.event.client_payload.date }}" --save-db
