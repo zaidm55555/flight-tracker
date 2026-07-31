@@ -509,12 +509,11 @@ def main():
         export_csv(flights, f"flights_{route}_{timestamp_str}.csv")
 
     if args.save_db:
-        saved = save_to_mongodb(flights)
-        if saved:
-            update_route_metadata(
-                {"origin": args.origin.upper(), "destination": args.destination.upper(), "date": args.date},
-                len(flights)
-            )
+        save_to_mongodb(flights)
+        update_route_metadata(
+            {"origin": args.origin.upper(), "destination": args.destination.upper(), "date": args.date},
+            len(flights)
+        )
 
     print("\n[+] Done!")
 
