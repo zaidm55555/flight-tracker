@@ -117,12 +117,20 @@ def add_route_meta(r):
     r["added_at"] = r.get("added_at", "").isoformat() if isinstance(r.get("added_at"), datetime) else str(r.get("added_at", ""))
     return r
 
-@app.route("/api/routes", methods=["GET", "POST"])
+@app.route("/api/routes", methods=["GET", "POST", "DELETE"])
 def api_routes():
     if request.method == "GET":
         email = user_email()
         routes = list(routes_col.find({"email": email}).sort("added_at", -1)) if routes_col is not None else []
         return jsonify([add_route_meta(r) for r in routes])
+    if request.method == "DELETE":
+        origin = request.args.get("from", "").upper()
+        dest = request.args.get("to", "").upper()
+        dt = request.args.get("date", "")
+        res = routes_col.delete_one({"origin": origin, "destination": dest, "date": dt, "email": user_email()}) if routes_col is not None else None
+        if not res or res.deleted_count == 0:
+            return jsonify({"error": "Not found"}), 404
+        return jsonify({"ok": True})
     if request.method == "POST":
         data = request.get_json()
         origin = data.get("origin", "").upper()

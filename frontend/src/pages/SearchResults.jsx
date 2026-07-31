@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import PriceChart from '../components/PriceChart'
 import Spinner from '../components/Spinner'
-import { deleteRoute } from '../api'
+import { deleteRouteByParams } from '../api'
 
 export default function SearchResults() {
   const [params] = useSearchParams()
@@ -15,7 +15,6 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
   const [historyData, setHistoryData] = useState({})
-  const [ownedRoute, setOwnedRoute] = useState(null)
 
   useEffect(() => {
     if (!from || !to || !date) { setLoading(false); return }
@@ -26,21 +25,10 @@ export default function SearchResults() {
       .catch(() => setLoading(false))
   }, [from, to, date])
 
-  useEffect(() => {
-    if (!from || !to || !date) return
-    fetch('/api/routes')
-      .then(r => r.json())
-      .then(data => {
-        const match = data.find(r => r.origin === from.toUpperCase() && r.destination === to.toUpperCase() && r.date === date)
-        setOwnedRoute(match || null)
-      })
-      .catch(() => {})
-  }, [from, to, date])
-
   async function handleDelete() {
-    if (!ownedRoute || !confirm(`Stop tracking ${from} → ${to} on ${date}?`)) return
+    if (!confirm(`Stop tracking ${from} → ${to} on ${date}?`)) return
     try {
-      await deleteRoute(ownedRoute._id)
+      await deleteRouteByParams(from, to, date)
       navigate('/')
     } catch {}
   }
@@ -74,9 +62,7 @@ export default function SearchResults() {
         <div className="header">
           <h1>{from} → {to} <span>- {date}</span></h1>
           <div className="header-actions">
-            {ownedRoute && (
-              <button className="route-del" onClick={handleDelete}>Delete route</button>
-            )}
+            <button className="route-del" onClick={handleDelete}>Delete route</button>
             <Link to="/" className="back-link">← Back</Link>
           </div>
         </div>

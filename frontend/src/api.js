@@ -29,6 +29,13 @@ export async function deleteRoute(id) {
   return r.json()
 }
 
+export async function deleteRouteByParams(from, to, date) {
+  const params = new URLSearchParams({ from, to, date })
+  const r = await fetch(`${BASE}/api/routes?${params}`, { method: 'DELETE' })
+  if (!r.ok) throw new Error('Failed to delete route')
+  return r.json()
+}
+
 export async function toggleRoute(id) {
   const r = await fetch(`${BASE}/api/routes/${id}/toggle`, { method: 'POST' })
   if (!r.ok) throw new Error('Failed to toggle route')
