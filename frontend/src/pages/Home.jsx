@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import AirportAutocomplete from '../components/AirportAutocomplete'
-import { fetchStats } from '../api'
+import { fetchStats, deleteRoute } from '../api'
 import Spinner from '../components/Spinner'
 
 function todayStr() {
@@ -20,13 +20,27 @@ export default function Home({ user }) {
   const [searchDate, setSearchDate] = useState(todayStr())
   const navigate = useNavigate()
 
-  useEffect(() => {
+  function loadRoutes() {
     fetch('/api/routes')
       .then(r => r.json())
       .then(data => { setRoutes(data); setLoadingRoutes(false) })
       .catch(() => setLoadingRoutes(false))
+  }
+
+  useEffect(() => {
+    loadRoutes()
     fetchStats().then(setStats).catch(() => {})
   }, [])
+
+  async function handleDelete(e, id) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!confirm('Delete this route from your tracking?')) return
+    try {
+      await deleteRoute(id)
+      loadRoutes()
+    } catch {}
+  }
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -91,6 +105,7 @@ export default function Home({ user }) {
               <div className="route-cities">{r.origin} <span className="arrow">→</span> {r.destination}</div>
               <div className="route-actions">
                 <span className={`badge ${r.status}`}>{r.status}</span>
+                <button className="route-del" onClick={e => handleDelete(e, r._id)}>Delete</button>
                 <span className="chevron">›</span>
               </div>
             </div>

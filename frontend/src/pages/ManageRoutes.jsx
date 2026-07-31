@@ -25,7 +25,7 @@ export default function ManageRoutes() {
   }
 
   async function handleDelete(id) {
-    if (!confirm('Delete this route and all its tracked prices?')) return
+    if (!confirm('Delete this route from your tracking?')) return
     try {
       await deleteRoute(id)
       loadRoutes()

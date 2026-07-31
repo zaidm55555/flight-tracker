@@ -292,19 +292,26 @@ def get_mongo_collection(name="flight_prices"):
 
 
 def get_active_routes():
-    """Fetch all active routes from tracked_routes collection."""
+    """Fetch all active routes from tracked_routes collection, deduped by route."""
     client, col = get_mongo_collection("tracked_routes")
     if col is None:
         return []
     routes = list(col.find({"status": "active"}).sort("added_at", 1))
-    if routes:
-        print(f"[+] Loaded {len(routes)} active route(s) to scrape:")
-        for r in routes:
+    seen = set()
+    unique = []
+    for r in routes:
+        key = (r["origin"], r["destination"], r["date"])
+        if key not in seen:
+            seen.add(key)
+            unique.append(r)
+    if unique:
+        print(f"[+] Loaded {len(unique)} unique active route(s) to scrape (from {len(routes)} tracker(s)):")
+        for r in unique:
             print(f"    {r['origin']} → {r['destination']} on {r['date']}")
     else:
         print("[!] No active routes found in tracked_routes.")
     client.close()
-    return routes
+    return unique
 
 
 def scrape_all_routes(currency="INR", click_cards=True, output="console"):
@@ -346,20 +353,21 @@ def scrape_all_routes(currency="INR", click_cards=True, output="console"):
         # Save to MongoDB
         save_to_mongodb(flights)
 
-        # Update route tracking metadata
-        update_route_metadata(route["_id"], len(flights))
+        # Update route tracking metadata for every tracker of this route
+        update_route_metadata(route, len(flights))
 
     print(f"\n[+] Scraped {len(routes)} route(s), {total_flights} total flight records.")
 
 
-def update_route_metadata(route_obj_id, record_count):
-    """Update last_scraped_at and increment scrape_count for a route."""
+def update_route_metadata(route, record_count):
+    """Update last_scraped_at and increment scrape_count for all active trackers of a route."""
     client, col = get_mongo_collection("tracked_routes")
     if col is None:
         return
     try:
-        col.update_one(
-            {"_id": route_obj_id},
+        col.update_many(
+            {"origin": route["origin"], "destination": route["destination"],
+             "date": route["date"], "status": "active"},
             {"$set": {"last_scraped_at": datetime.utcnow().isoformat() + "Z"},
              "$inc": {"scrape_count": 1}}
         )
