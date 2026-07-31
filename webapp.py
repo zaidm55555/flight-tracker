@@ -196,9 +196,6 @@ def history():
     if not all([fid, o, d]):
         return jsonify([])
     match = {"flight_id": fid, "origin": o, "destination": d}
-    added_at = route_added_at_str(o, d, dt)
-    if added_at:
-        match["scraped_at"] = {"$gte": added_at}
     pipe = [
         {"$match": match},
         {"$group": {"_id": "$scraped_at", "p": {"$first": "$price_numeric"}, "pf": {"$first": "$price_formatted"}}},
