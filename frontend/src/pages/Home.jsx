@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { fetchStats } from '../api'
 import Spinner from '../components/Spinner'
 
 export default function Home({ user }) {
   const [routes, setRoutes] = useState([])
   const [loadingRoutes, setLoadingRoutes] = useState(true)
-  const [stats, setStats] = useState({ total: 0, routes: 0, last_scrape: 'N/A' })
   const [selectedRoute, setSelectedRoute] = useState('')
   const navigate = useNavigate()
 
@@ -15,7 +13,6 @@ export default function Home({ user }) {
       .then(r => r.json())
       .then(data => { setRoutes(data); setLoadingRoutes(false) })
       .catch(() => setLoadingRoutes(false))
-    fetchStats().then(setStats).catch(() => {})
   }, [])
 
   function handleSubmit(e) {
@@ -39,12 +36,6 @@ export default function Home({ user }) {
             <a href="/logout" className="user-logout">Log out</a>
           </div>
         )}
-      </div>
-
-      <div className="stats-bar">
-        <div>Routes: <span>{stats.routes}</span></div>
-        <div>Records: <span>{stats.total}</span></div>
-        <div>Last scrape: <span>{stats.last_scrape !== 'N/A' ? new Date(stats.last_scrape).toLocaleString() : '--'}</span></div>
       </div>
 
       <div className="card search-card">
