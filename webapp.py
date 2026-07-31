@@ -169,10 +169,10 @@ def search():
     dt = request.args.get("date","")
     if not all([o,d,dt]):
         return jsonify({"error": "Fill in all fields"}), 400
-    filters = {"origin": o, "destination": d, "date": dt}
     added_at = route_added_at_str(o, d, dt)
-    if added_at:
-        filters["scraped_at"] = {"$gte": added_at}
+    if not added_at:
+        return jsonify({"error": "Route not tracked"}), 403
+    filters = {"origin": o, "destination": d, "date": dt, "scraped_at": {"$gte": added_at}}
     flights = list(flights_col.find(filters, {"_id": 0}).sort("scraped_at", -1)) if flights_col is not None else []
     seen = set()
     unique = []

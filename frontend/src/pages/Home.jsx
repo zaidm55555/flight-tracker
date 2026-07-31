@@ -1,23 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import AirportAutocomplete from '../components/AirportAutocomplete'
+import { Link, useNavigate } from 'react-router-dom'
 import { fetchStats } from '../api'
 import Spinner from '../components/Spinner'
-
-function todayStr() {
-  const d = new Date()
-  return d.getFullYear() + '-' +
-    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-    String(d.getDate()).padStart(2, '0')
-}
 
 export default function Home({ user }) {
   const [routes, setRoutes] = useState([])
   const [loadingRoutes, setLoadingRoutes] = useState(true)
   const [stats, setStats] = useState({ total: 0, routes: 0, last_scrape: 'N/A' })
-  const [fromCode, setFromCode] = useState('')
-  const [toCode, setToCode] = useState('')
-  const [searchDate, setSearchDate] = useState(todayStr())
+  const [selectedRoute, setSelectedRoute] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -30,8 +20,9 @@ export default function Home({ user }) {
 
   function handleSubmit(e) {
     e.preventDefault()
-    if (!fromCode || !toCode || !searchDate) return
-    navigate(`/search?from=${fromCode}&to=${toCode}&date=${searchDate}`)
+    if (!selectedRoute) return
+    const r = routes.find(x => x._id === selectedRoute)
+    if (r) navigate(`/search?from=${r.origin}&to=${r.destination}&date=${r.date}`)
   }
 
   return (
@@ -58,22 +49,19 @@ export default function Home({ user }) {
 
       <div className="card search-card">
         <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <AirportAutocomplete value={fromCode} onChange={setFromCode} />
-            </div>
-            <div className="form-group">
-              <AirportAutocomplete value={toCode} onChange={setToCode} />
-            </div>
-          </div>
-          <input
-            type="date"
-            className="search-date"
-            value={searchDate}
-            min={todayStr()}
+          <select
+            className="field-input"
+            value={selectedRoute}
+            onChange={e => setSelectedRoute(e.target.value)}
             required
-            onChange={e => setSearchDate(e.target.value)}
-          />
+          >
+            <option value="" disabled>Select your tracked route</option>
+            {routes.map(r => (
+              <option key={r._id} value={r._id}>
+                {r.origin} → {r.destination} · {r.date} ({r.status})
+              </option>
+            ))}
+          </select>
           <button type="submit" className="btn-search">Search Flights</button>
         </form>
       </div>

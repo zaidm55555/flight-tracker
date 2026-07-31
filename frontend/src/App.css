@@ -200,6 +200,17 @@ body {
   transition: background 0.15s, transform 0.1s; -webkit-tap-highlight-color: transparent;
 }
 .search-card .btn-search:active { background: #1557b0; transform: scale(0.98); }
+.search-card select.field-input {
+  width: 100%; min-height: 44px; padding: 0 10px; margin-bottom: 10px;
+  border: 1px solid #dadce0; border-radius: 10px; font-size: 0.9rem;
+  font-family: inherit; color: #202124; background: #f8f9fa; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s; cursor: pointer;
+}
+.search-card select.field-input:focus { border-color: #1a73e8; background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
+@media (prefers-color-scheme: dark) {
+  .search-card select.field-input { background: #0f3460; border-color: #1a4a7a; color: #e0e0e0; }
+  .search-card select.field-input:focus { background: #0f3460; border-color: #4da6ff; }
+}
 .search-date {
   width: 100%; height: 44px; padding: 0 12px; margin: 6px 0 10px;
   border: 1px solid #dadce0; border-radius: 10px;
