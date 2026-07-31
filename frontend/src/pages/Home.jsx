@@ -25,22 +25,36 @@ export default function Home({ user }) {
   return (
     <div className="container">
       <div className="hero">
-        <div className="hero-top">
-          <div className="brand-mark">✈</div>
-          <div>
-            <div className="brand-name">FlightPulse</div>
-            <div className="brand-tag">Track flight prices across routes</div>
+        <div className="hero-sky">
+          <div className="sun" />
+          <div className="cloud cloud-1" />
+          <div className="cloud cloud-2" />
+          <div className="cloud cloud-3" />
+          <div className="hero-flight" aria-hidden="true">
+            <svg className="hero-flight-svg" viewBox="0 0 320 90" preserveAspectRatio="none">
+              <path className="flight-dash" d="M -10 84 Q 160 -26 330 84" />
+            </svg>
+            <div className="hero-plane">✈</div>
           </div>
         </div>
-        {user && (
-          <div className="hero-user">
-            {user.picture
-              ? <img className="user-avatar" src={user.picture} alt={user.name} referrerPolicy="no-referrer" />
-              : <div className="user-avatar user-avatar-fallback">{user.name?.charAt(0) || 'U'}</div>}
-            <span className="user-name">{user.name}</span>
-            <a href="/logout" className="user-logout">Log out</a>
+        <div className="hero-content">
+          <div className="hero-top">
+            <div className="brand-mark">✈</div>
+            <div>
+              <div className="brand-name">FlightPulse</div>
+              <div className="brand-tag">Track flight prices across routes</div>
+            </div>
           </div>
-        )}
+          {user && (
+            <div className="hero-user">
+              {user.picture
+                ? <img className="user-avatar" src={user.picture} alt={user.name} referrerPolicy="no-referrer" />
+                : <div className="user-avatar user-avatar-fallback">{user.name?.charAt(0) || 'U'}</div>}
+              <span className="user-name">{user.name}</span>
+              <a href="/logout" className="user-logout">Log out</a>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="card search-card">

@@ -3,6 +3,7 @@ export default function LoginScreen() {
     <div className="login-page">
       <div className="login-orb login-orb-1" />
       <div className="login-orb login-orb-2" />
+      <div className="login-flight" aria-hidden="true"><div className="login-plane">✈</div></div>
       <div className="login-card">
         <div className="login-logo">
           <div className="login-logo-mark">✈</div>

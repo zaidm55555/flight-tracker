@@ -5,6 +5,7 @@ import SearchResults from './pages/SearchResults'
 import AddRoute from './pages/AddRoute'
 import ManageRoutes from './pages/ManageRoutes'
 import LoginScreen from './components/LoginScreen'
+import Navbar from './components/Navbar'
 import Spinner from './components/Spinner'
 
 export default function App() {
@@ -36,11 +37,14 @@ export default function App() {
   if (!user) return <LoginScreen />
 
   return (
-    <Routes>
-      <Route path="/" element={<Home user={user} />} />
-      <Route path="/search" element={<SearchResults />} />
-      <Route path="/add-route" element={<AddRoute />} />
-      <Route path="/manage-routes" element={<ManageRoutes />} />
-    </Routes>
+    <>
+      <Navbar user={user} />
+      <Routes>
+        <Route path="/" element={<Home user={user} />} />
+        <Route path="/search" element={<SearchResults />} />
+        <Route path="/add-route" element={<AddRoute />} />
+        <Route path="/manage-routes" element={<ManageRoutes />} />
+      </Routes>
+    </>
   )
 }

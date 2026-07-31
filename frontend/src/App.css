@@ -88,6 +88,84 @@ body {
   0%, 100% { box-shadow: 0 0 0 0 var(--success); }
   70% { box-shadow: 0 0 0 6px transparent; }
 }
+@keyframes dashFlow { to { stroke-dashoffset: -16; } }
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(-5deg); }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+@keyframes planeRun {
+  0%   { left: -10%; transform: translateY(-50%) rotate(82deg); opacity: 0; }
+  6%   { opacity: 1; }
+  45%  { transform: translateY(-50%) rotate(98deg); }
+  94%  { opacity: 1; }
+  100% { left: 110%; transform: translateY(-50%) rotate(82deg); opacity: 0; }
+}
+@keyframes cloudDrift {
+  from { transform: translateX(-45vw); }
+  to   { transform: translateX(135vw); }
+}
+@keyframes heroSwoop {
+  0%   { left: -8%; top: 92%; transform: rotate(38deg); opacity: 0; }
+  8%   { opacity: 1; }
+  45%  { transform: rotate(58deg); }
+  50%  { left: 50%; top: 26%; transform: rotate(64deg); }
+  55%  { transform: rotate(70deg); }
+  92%  { opacity: 1; }
+  100% { left: 108%; top: 92%; transform: rotate(38deg); opacity: 0; }
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  display: flex; align-items: center; gap: 14px;
+  max-width: 640px; margin: 0 auto 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px 14px;
+  box-shadow: var(--shadow-md);
+  animation: fadeUp 0.4s ease both;
+}
+.navbar-brand {
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none; color: inherit; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.navbar-logo {
+  width: 34px; height: 34px; border-radius: 11px;
+  background: var(--grad); color: #fff; font-size: 1.05rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+  animation: bob 3s ease-in-out infinite;
+}
+.navbar-name { font-weight: 800; font-size: 1.05rem; letter-spacing: -0.4px; }
+.navbar-flight {
+  position: relative; flex: 1; height: 26px; min-width: 0; overflow: hidden;
+}
+.navbar-path { position: absolute; inset: 0; width: 100%; height: 100%; }
+.navbar-dash {
+  fill: none; stroke: var(--primary); stroke-opacity: 0.45; stroke-width: 2;
+  stroke-linecap: round; stroke-dasharray: 7 9;
+  animation: dashFlow 1.1s linear infinite;
+}
+.navbar-plane {
+  position: absolute; top: 50%; font-size: 1rem; line-height: 1;
+  animation: planeRun 4.5s linear infinite;
+  will-change: left, transform;
+}
+.navbar-plane::before {
+  content: ""; position: absolute; right: 100%; top: 50%;
+  width: 42px; height: 3px; border-radius: 3px; margin-top: -1.5px;
+  background: linear-gradient(to left, var(--primary), transparent);
+  opacity: 0.45;
+}
+.navbar-user { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.navbar-user-name { max-width: 90px; }
+
+/* ---------- Home hero ---------- */
 
 /* ---------- Home hero ---------- */
 .hero {
@@ -97,17 +175,53 @@ body {
   padding: 20px;
   margin-bottom: 16px;
   color: #fff;
-  background: var(--grad);
-  background-size: 180% 180%;
-  animation: gradShift 12s ease infinite;
+  background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 45%, #7c3aed 80%, #a855f7 100%);
+  background-size: 200% 200%;
+  animation: gradShift 14s ease infinite;
   box-shadow: var(--shadow-lg);
+  min-height: 190px;
 }
-.hero::after {
-  content: "";
-  position: absolute; inset: 0;
-  background: radial-gradient(120px 90px at 88% -10%, rgba(255,255,255,0.35), transparent 70%);
-  pointer-events: none;
+.hero-sky { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.hero-content { position: relative; z-index: 2; }
+.sun {
+  position: absolute; top: 16px; right: 18px;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0.25) 62%, transparent 72%);
+  box-shadow: 0 0 28px 6px rgba(255,255,255,0.35);
+  animation: pulseGlow 4s ease-in-out infinite;
 }
+.cloud {
+  position: absolute; background: rgba(255,255,255,0.92); border-radius: 999px;
+}
+.cloud::before, .cloud::after { content: ""; position: absolute; background: inherit; border-radius: 50%; }
+.cloud-1 { width: 90px; height: 22px; top: 40px; animation: cloudDrift 30s linear infinite; }
+.cloud-1::before { width: 36px; height: 36px; top: -19px; left: 12px; }
+.cloud-1::after { width: 26px; height: 26px; top: -13px; right: 12px; }
+.cloud-2 { width: 70px; height: 18px; bottom: 34px; opacity: 0.75; animation: cloudDrift 38s linear infinite; animation-delay: -14s; }
+.cloud-2::before { width: 28px; height: 28px; top: -15px; left: 10px; }
+.cloud-2::after { width: 20px; height: 20px; top: -10px; right: 8px; }
+.cloud-3 { width: 56px; height: 15px; bottom: 12px; opacity: 0.55; animation: cloudDrift 46s linear infinite; animation-delay: -28s; }
+.cloud-3::before { width: 24px; height: 24px; top: -13px; left: 8px; }
+.cloud-3::after { width: 17px; height: 17px; top: -9px; right: 6px; }
+
+.hero-flight { position: absolute; inset: 0; z-index: 1; }
+.hero-flight-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.flight-dash {
+  fill: none; stroke: rgba(255,255,255,0.75); stroke-width: 2;
+  stroke-linecap: round; stroke-dasharray: 5 11;
+  animation: dashFlow 1.2s linear infinite;
+}
+.hero-plane {
+  position: absolute; font-size: 1.05rem; line-height: 1;
+  animation: heroSwoop 9s ease-in-out infinite;
+  will-change: left, top, transform;
+}
+.hero-plane::before {
+  content: ""; position: absolute; right: 100%; top: 50%;
+  width: 72px; height: 4px; border-radius: 4px; margin-top: -2px;
+  background: linear-gradient(to left, rgba(255,255,255,0.95), rgba(255,255,255,0));
+}
+
 .hero-top { display: flex; align-items: center; gap: 12px; }
 .brand-mark {
   width: 44px; height: 44px; border-radius: 14px;
@@ -116,6 +230,7 @@ body {
   backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center;
   font-size: 1.3rem;
+  animation: bob 3.5s ease-in-out infinite;
 }
 .brand-name { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1; }
 .brand-tag { font-size: 0.78rem; color: rgba(255,255,255,0.85); margin-top: 2px; }
@@ -164,8 +279,8 @@ body {
 @media (hover: hover) {
   .route-card-link:hover, .flight-card:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--border-strong);
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--primary);
+    border-color: var(--primary);
   }
 }
 .route-card-link:active { transform: translateY(0) scale(0.99); }
@@ -278,6 +393,21 @@ body {
 }
 .login-orb-1 { width: 220px; height: 220px; background: #7c3aed; top: -60px; right: -40px; }
 .login-orb-2 { width: 260px; height: 260px; background: #0ea5e9; bottom: -80px; left: -60px; animation-delay: -3.5s; }
+.login-flight {
+  position: absolute; top: 0; left: 0; right: 0; height: 120px; pointer-events: none;
+}
+.login-plane {
+  position: absolute; font-size: 1.4rem; line-height: 1;
+  animation: loginFly 8s ease-in-out infinite;
+  will-change: left, top, transform;
+}
+@keyframes loginFly {
+  0%   { left: -10%; top: 78%; transform: rotate(32deg); opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { left: 55%; top: 18%; transform: rotate(58deg); }
+  90%  { opacity: 1; }
+  100% { left: 110%; top: 78%; transform: rotate(32deg); opacity: 0; }
+}
 .login-card {
   position: relative; z-index: 1;
   background: var(--surface);
@@ -592,4 +722,12 @@ body {
   .manage-body { padding: 12px; }
   .manage-body .route-card { flex-wrap: wrap; }
   .manage-body .route-card .card-actions { width: 100%; justify-content: flex-end; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
