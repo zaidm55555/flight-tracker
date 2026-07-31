@@ -15,6 +15,7 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
   const [historyData, setHistoryData] = useState({})
+  const [historyLoading, setHistoryLoading] = useState(null)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -44,10 +45,14 @@ export default function SearchResults() {
     }
     setExpanded(fid)
     if (!historyData[fid]) {
+      setHistoryLoading(fid)
       fetch(`/api/history?flight_id=${encodeURIComponent(fid)}&from=${from}&to=${to}&date=${date}`)
         .then(r => r.json())
-        .then(data => setHistoryData(prev => ({ ...prev, [fid]: data })))
-        .catch(() => {})
+        .then(data => {
+          setHistoryData(prev => ({ ...prev, [fid]: data }))
+          setHistoryLoading(null)
+        })
+        .catch(() => setHistoryLoading(null))
     }
   }
 
@@ -95,7 +100,11 @@ export default function SearchResults() {
               </div>
               {expanded === f.flight_id && (
                 <div className="chart-box">
-                  <PriceChart data={historyData[f.flight_id] || []} />
+                  {historyLoading === f.flight_id ? (
+                    <div className="history-loading"><span className="btn-spinner" /> Loading price history...</div>
+                  ) : (
+                    <PriceChart data={historyData[f.flight_id] || []} />
+                  )}
                 </div>
               )}
             </div>

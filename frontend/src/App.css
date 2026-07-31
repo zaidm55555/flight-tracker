@@ -295,6 +295,11 @@ body {
 .flight-card .hint { font-size: 0.7rem; color: #9aa0a6; margin-top: 4px; }
 .flight-card .chart-box { margin-top: 14px; }
 .flight-card .chart-box canvas { width: 100% !important; max-height: 160px; }
+
+.history-loading {
+  display: flex; align-items: center; gap: 8px;
+  color: #7a8699; font-size: 13px; padding: 10px 0;
+}
 .flight-card .chart-placeholder { color: #9aa0a6; font-size: 0.8rem; text-align: center; padding: 20px 0; }
 .no-flights { background: white; border-radius: 16px; padding: 40px 20px; text-align: center; }
 .no-flights p { color: #5f6368; font-size: 1rem; }
