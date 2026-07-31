@@ -369,7 +369,8 @@ def update_route_metadata(route, record_count):
             {"origin": route["origin"], "destination": route["destination"],
              "date": route["date"], "status": "active"},
             {"$set": {"last_scraped_at": datetime.utcnow().isoformat() + "Z"},
-             "$inc": {"scrape_count": 1}}
+             "$inc": {"scrape_count": 1},
+             "$unset": {"pending_scrape": "", "pending_scrape_at": ""}}
         )
     except Exception as err:
         print(f"[!] Failed to update route metadata: {err}")
@@ -508,7 +509,12 @@ def main():
         export_csv(flights, f"flights_{route}_{timestamp_str}.csv")
 
     if args.save_db:
-        save_to_mongodb(flights)
+        saved = save_to_mongodb(flights)
+        if saved:
+            update_route_metadata(
+                {"origin": args.origin.upper(), "destination": args.destination.upper(), "date": args.date},
+                len(flights)
+            )
 
     print("\n[+] Done!")
 

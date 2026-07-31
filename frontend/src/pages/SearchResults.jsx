@@ -13,6 +13,7 @@ export default function SearchResults() {
 
   const [flights, setFlights] = useState([])
   const [loading, setLoading] = useState(true)
+  const [pendingScrape, setPendingScrape] = useState(false)
   const [expanded, setExpanded] = useState(null)
   const [historyData, setHistoryData] = useState({})
   const [historyLoading, setHistoryLoading] = useState(null)
@@ -20,11 +21,35 @@ export default function SearchResults() {
 
   useEffect(() => {
     if (!from || !to || !date) { setLoading(false); return }
+    let cancelled = false
+    let timer = null
+
+    const load = () => {
+      authFetch(`/api/search?from=${from}&to=${to}&date=${date}`)
+        .then(r => r.json())
+        .then(data => {
+          if (cancelled) return
+          if (Array.isArray(data)) {
+            setPendingScrape(false)
+            setFlights(data)
+            setLoading(false)
+          } else if (data && data.pending_scrape) {
+            setPendingScrape(true)
+            setFlights([])
+            setLoading(false)
+            timer = setTimeout(load, 5000)
+          } else {
+            setPendingScrape(false)
+            setFlights([])
+            setLoading(false)
+          }
+        })
+        .catch(() => { if (!cancelled) setLoading(false) })
+    }
+
     setLoading(true)
-    authFetch(`/api/search?from=${from}&to=${to}&date=${date}`)
-      .then(r => r.json())
-      .then(data => { setFlights(data); setLoading(false) })
-      .catch(() => setLoading(false))
+    load()
+    return () => { cancelled = true; if (timer) clearTimeout(timer) }
   }, [from, to, date])
 
   async function handleDelete() {
@@ -82,6 +107,13 @@ export default function SearchResults() {
 
         {loading ? (
           <Spinner text="Searching flights..." />
+        ) : pendingScrape ? (
+          <div className="no-flights">
+            <div className="pending-scrape"><span className="btn-spinner" /></div>
+            <p>Running your first price check for {from} → {to}...</p>
+            <p className="hint">This takes about a minute — we'll show the prices here automatically.</p>
+            <Link to="/">Back to home</Link>
+          </div>
         ) : flights.length > 0 ? (
           flights.map(f => (
             <div key={f.flight_id} className="flight-card" onClick={() => toggleCard(f.flight_id)}>

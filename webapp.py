@@ -5,6 +5,7 @@ import os, pymongo
 from bson.objectid import ObjectId
 from authlib.integrations.flask_client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
+import requests
 
 load_dotenv("atlas-credentials.env")
 app = Flask(__name__)
@@ -82,6 +83,29 @@ def require_login():
 def user_email():
     return session.get("user", {}).get("email", "")
 
+def dispatch_route_scrape(o, d, dt):
+    """Trigger a GitHub Actions scrape for one route via repository_dispatch."""
+    pat = os.getenv("GITHUB_ACTIONS_PAT", "")
+    if not pat:
+        return False
+    try:
+        resp = requests.post(
+            "https://api.github.com/repos/zaidm55555/flight-tracker/dispatches",
+            headers={
+                "Authorization": f"Bearer {pat}",
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+            json={"event_type": "scrape-route", "client_payload": {"origin": o, "destination": d, "date": dt}},
+            timeout=10,
+        )
+        return resp.status_code == 204
+    except Exception:
+        return False
+
+def route_has_data(o, d, dt):
+    return flights_col is not None and flights_col.count_documents({"origin": o, "destination": d, "date": dt}) > 0
+
 def route_added_at_str(o, d, dt):
     if routes_col is None:
         return None
@@ -155,7 +179,18 @@ def api_routes():
             "last_scraped_at": None, "scrape_count": 0
         }
         routes_col.insert_one(doc)
-        return jsonify({"ok": True}), 201
+        pending = False
+        if not route_has_data(origin, dest, dt):
+            already_pending = routes_col.count_documents(
+                {"origin": origin, "destination": dest, "date": dt, "pending_scrape": True}
+            ) > 0 if routes_col is not None else False
+            if not already_pending and dispatch_route_scrape(origin, dest, dt):
+                routes_col.update_one(
+                    {"_id": doc["_id"]},
+                    {"$set": {"pending_scrape": True, "pending_scrape_at": datetime.utcnow().isoformat() + "Z"}}
+                )
+                pending = True
+        return jsonify({"ok": True, "pending_scrape": pending}), 201
 
 @app.route("/api/routes/<route_id>", methods=["DELETE"])
 def delete_route(route_id):
@@ -189,6 +224,13 @@ def search():
         {"$group": {"_id": "$flight_id", "doc": {"$first": "$$ROOT"}}}
     ]
     flights = [r["doc"] for r in (flights_col.aggregate(pipe) if flights_col is not None else [])]
+    if not flights:
+        pending = routes_col.find_one(
+            {"origin": o, "destination": d, "date": dt, "status": "active", "pending_scrape": True}
+        ) if routes_col is not None else None
+        if pending:
+            return jsonify({"pending_scrape": True})
+        return jsonify([])
     for f in flights:
         f.pop("_id", None)
     flights.sort(key=lambda f: f.get("price_numeric", 0))

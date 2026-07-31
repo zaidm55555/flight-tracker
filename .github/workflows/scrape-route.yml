@@ -1,0 +1,33 @@
+name: Scrape Route (on-demand)
+
+on:
+  repository_dispatch:
+    types: [scrape-route]
+
+jobs:
+  scrape-route:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install playwright
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Scrape route
+        run: python flight_scraper.py -f "${{ github.event.client_payload.origin }}" -t "${{ github.event.client_payload.destination }}" -d "${{ github.event.client_payload.date }}" --save-db
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}

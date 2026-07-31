@@ -332,6 +332,9 @@ body {
 .flight-card .chart-placeholder { color: #9aa0a6; font-size: 0.8rem; text-align: center; padding: 20px 0; }
 .no-flights { background: white; border-radius: 16px; padding: 40px 20px; text-align: center; }
 .no-flights p { color: #5f6368; font-size: 1rem; }
+.no-flights p.hint { font-size: 0.85rem; color: #9aa0a6; margin-top: 6px; }
+.pending-scrape { display: flex; justify-content: center; margin-bottom: 14px; }
+.pending-scrape .btn-spinner { width: 26px; height: 26px; border-width: 3px; color: #1a73e8; margin: 0; }
 .no-flights a { color: #1a73e8; text-decoration: none; font-size: 0.85rem; margin-top: 8px; display: inline-block; cursor: pointer; }
 
 @media (max-width: 420px) {
@@ -365,6 +368,7 @@ body {
   .flight-card .hint { color: #556688; }
   .flight-card .chart-placeholder { color: #556688; }
   .no-flights p { color: #8899aa; }
+  .pending-scrape .btn-spinner { color: #4da6ff; }
 }
 
 /* Add Route page */
