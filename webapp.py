@@ -230,11 +230,15 @@ def search():
         ) if routes_col is not None else None
         if pending:
             return jsonify({"pending_scrape": True})
-        return jsonify([])
+        route = routes_col.find_one(
+            {"origin": o, "destination": d, "date": dt, "status": "active"}
+        ) if routes_col is not None else None
+        scraped = bool(route and (route.get("last_scraped_at") or route.get("scrape_count", 0) > 0))
+        return jsonify({"flights": [], "scraped": scraped})
     for f in flights:
         f.pop("_id", None)
     flights.sort(key=lambda f: f.get("price_numeric", 0))
-    return jsonify(flights)
+    return jsonify({"flights": flights, "scraped": True})
 
 @app.route("/api/history")
 def history():

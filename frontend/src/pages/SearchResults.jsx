@@ -28,6 +28,7 @@ export default function SearchResults() {
   const [flights, setFlights] = useState([])
   const [loading, setLoading] = useState(true)
   const [pendingScrape, setPendingScrape] = useState(false)
+  const [scraped, setScraped] = useState(false)
   const [expanded, setExpanded] = useState(null)
   const [historyData, setHistoryData] = useState({})
   const [historyLoading, setHistoryLoading] = useState(null)
@@ -45,15 +46,23 @@ export default function SearchResults() {
           if (cancelled) return
           if (Array.isArray(data)) {
             setPendingScrape(false)
+            setScraped(data.length === 0 ? false : true)
             setFlights(data)
             setLoading(false)
           } else if (data && data.pending_scrape) {
             setPendingScrape(true)
             setFlights([])
+            setScraped(false)
             setLoading(false)
             timer = setTimeout(load, 5000)
+          } else if (data && Array.isArray(data.flights)) {
+            setPendingScrape(false)
+            setScraped(!!data.scraped)
+            setFlights(data.flights)
+            setLoading(false)
           } else {
             setPendingScrape(false)
+            setScraped(false)
             setFlights([])
             setLoading(false)
           }
@@ -182,8 +191,12 @@ export default function SearchResults() {
           })
         ) : (
           <div className="no-flights">
-            <p>No prices available for this route yet.</p>
-            <p>The first price check hasn't run yet — prices will appear here after the next update.</p>
+            <p>{scraped ? `No flights available for ${from} → ${to} on ${date}.` : `No prices available for this route yet.`}</p>
+            <p className="hint">
+              {scraped
+                ? 'The price check ran, but Google Flights has no flights for this route on this date.'
+                : 'The first price check hasn\'t run yet — prices will appear here after the next update.'}
+            </p>
             <Link to="/">Back to home</Link>
           </div>
         )}
