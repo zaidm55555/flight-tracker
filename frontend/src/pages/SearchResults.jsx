@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import PriceChart from '../components/PriceChart'
 import Spinner from '../components/Spinner'
+import { deleteRoute } from '../api'
 
 export default function SearchResults() {
   const [params] = useSearchParams()
   const from = params.get('from') || ''
   const to = params.get('to') || ''
   const date = params.get('date') || ''
+  const navigate = useNavigate()
 
   const [flights, setFlights] = useState([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
   const [historyData, setHistoryData] = useState({})
+  const [ownedRoute, setOwnedRoute] = useState(null)
 
   useEffect(() => {
     if (!from || !to || !date) { setLoading(false); return }
@@ -22,6 +25,25 @@ export default function SearchResults() {
       .then(data => { setFlights(data); setLoading(false) })
       .catch(() => setLoading(false))
   }, [from, to, date])
+
+  useEffect(() => {
+    if (!from || !to || !date) return
+    fetch('/api/routes')
+      .then(r => r.json())
+      .then(data => {
+        const match = data.find(r => r.origin === from.toUpperCase() && r.destination === to.toUpperCase() && r.date === date)
+        setOwnedRoute(match || null)
+      })
+      .catch(() => {})
+  }, [from, to, date])
+
+  async function handleDelete() {
+    if (!ownedRoute || !confirm(`Stop tracking ${from} → ${to} on ${date}?`)) return
+    try {
+      await deleteRoute(ownedRoute._id)
+      navigate('/')
+    } catch {}
+  }
 
   function toggleCard(fid) {
     if (expanded === fid) {
@@ -51,7 +73,12 @@ export default function SearchResults() {
       <div style={{ maxWidth: 640, margin: '0 auto' }}>
         <div className="header">
           <h1>{from} → {to} <span>- {date}</span></h1>
-          <Link to="/" className="back-link">← Back</Link>
+          <div className="header-actions">
+            {ownedRoute && (
+              <button className="route-del" onClick={handleDelete}>Delete route</button>
+            )}
+            <Link to="/" className="back-link">← Back</Link>
+          </div>
         </div>
 
         {loading ? (

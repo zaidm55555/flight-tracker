@@ -255,6 +255,7 @@ body {
   -webkit-tap-highlight-color: transparent; transition: background 0.15s; cursor: pointer;
 }
 .back-link:active { background: #e8f0fe; }
+.header-actions { display: flex; align-items: center; gap: 6px; }
 .flight-card {
   background: white; border-radius: 16px; padding: 16px;
   margin-bottom: 10px; cursor: pointer; user-select: none;
