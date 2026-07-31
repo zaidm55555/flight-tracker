@@ -1,11 +1,24 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for
 from dotenv import load_dotenv
 from datetime import datetime
 import os, pymongo
 from bson.objectid import ObjectId
+from authlib.integrations.flask_client import OAuth
 
 load_dotenv("atlas-credentials.env")
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
+
+oauth = OAuth(app)
+if os.getenv("GOOGLE_CLIENT_ID") and os.getenv("GOOGLE_CLIENT_SECRET"):
+    oauth.register(
+        name="google",
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+        client_kwargs={"scope": "openid email profile"},
+    )
+
 client = None
 flights_col = None
 routes_col = None
@@ -21,6 +34,38 @@ except:
     pass
 
 FRONTEND_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "dist")
+
+@app.route("/login")
+def login():
+    return oauth.google.authorize_redirect(url_for("callback", _external=True))
+
+@app.route("/callback")
+def callback():
+    token = oauth.google.authorize_access_token()
+    user = token.get("userinfo")
+    session["user"] = {
+        "name": user.get("name", ""),
+        "email": user.get("email", ""),
+        "picture": user.get("picture", ""),
+    }
+    return redirect("/")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
+@app.route("/api/me")
+def me():
+    if "user" in session:
+        return jsonify(session["user"])
+    return jsonify({"error": "Not logged in"}), 401
+
+@app.before_request
+def require_login():
+    if (request.path.startswith("/api/") and request.path != "/api/me") or request.path == "/search":
+        if "user" not in session:
+            return jsonify({"error": "Not logged in"}), 401
 
 def add_route_meta(r):
     r["_id"] = str(r["_id"])

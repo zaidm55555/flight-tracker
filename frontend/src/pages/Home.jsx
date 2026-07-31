@@ -11,7 +11,7 @@ function todayStr() {
     String(d.getDate()).padStart(2, '0')
 }
 
-export default function Home() {
+export default function Home({ user }) {
   const [routes, setRoutes] = useState([])
   const [loadingRoutes, setLoadingRoutes] = useState(true)
   const [stats, setStats] = useState({ total: 0, routes: 0, last_scrape: 'N/A' })
@@ -39,6 +39,15 @@ export default function Home() {
       <div className="header">
         <h1>FlightPulse</h1>
         <p>Track flight prices across routes</p>
+        {user && (
+          <div className="user-chip">
+            {user.picture
+              ? <img className="user-avatar" src={user.picture} alt={user.name} referrerPolicy="no-referrer" />
+              : <div className="user-avatar user-avatar-fallback">{user.name?.charAt(0) || 'U'}</div>}
+            <span className="user-name">{user.name}</span>
+            <a href="/logout" className="user-logout">Log out</a>
+          </div>
+        )}
       </div>
 
       <div className="stats-bar">
