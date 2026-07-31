@@ -32,7 +32,7 @@ export default function Home() {
           <div className="hero-top">
             <div className="brand-mark">✈</div>
             <div>
-              <div className="brand-name">FlightPulse</div>
+              <div className="brand-name">safarVibe</div>
               <div className="brand-tag">Track flight prices across routes</div>
             </div>
           </div>

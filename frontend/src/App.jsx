@@ -6,7 +6,7 @@ import AddRoute from './pages/AddRoute'
 import ManageRoutes from './pages/ManageRoutes'
 import LoginScreen from './components/LoginScreen'
 import Navbar from './components/Navbar'
-import Spinner from './components/Spinner'
+import Splash from './components/Splash'
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -27,11 +27,7 @@ export default function App() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="container">
-        <Spinner text="Checking session..." />
-      </div>
-    )
+    return <Splash />
   }
 
   if (!user) return <LoginScreen />

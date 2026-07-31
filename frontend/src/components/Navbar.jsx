@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 export default function Navbar({ user }) {
   return (
     <header className="navbar">
-      <Link to="/" className="navbar-brand" aria-label="FlightPulse home">
+      <Link to="/" className="navbar-brand" aria-label="safarVibe home">
         <div className="navbar-logo">✈</div>
-        <span className="navbar-name">FlightPulse</span>
+        <span className="navbar-name">safarVibe</span>
       </Link>
 
       <div className="navbar-flight" aria-hidden="true">

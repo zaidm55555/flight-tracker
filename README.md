@@ -1,4 +1,4 @@
-# FlightPulse
+# safarVibe
 
 Flight price tracker with a React SPA frontend, Flask API backend, and MongoDB storage. Scrapes Google Flights via Playwright every 4 hours (GitHub Actions cron). PWA-enabled with price history charts.
 

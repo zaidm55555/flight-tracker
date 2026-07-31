@@ -1,5 +1,5 @@
 /* =========================================================
-   FlightPulse — design system
+   safarVibe — design system
    ========================================================= */
 
 :root {
@@ -339,6 +339,58 @@ body {
 .route-del:hover { background: var(--danger-bg); }
 
 /* ---------- Spinners ---------- */
+.splash {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #7c3aed 0%, #db2777 50%, #f97316 100%);
+  animation: gradShift 8s ease infinite;
+  color: #fff;
+}
+.splash-sky { position: absolute; inset: 0; pointer-events: none; }
+.splash-logo {
+  position: relative; z-index: 1;
+  width: 84px; height: 84px; border-radius: 26px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.6rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  animation: bob 3s ease-in-out infinite;
+}
+.splash-name {
+  position: relative; z-index: 1;
+  font-size: 1.9rem; font-weight: 800; letter-spacing: -0.6px;
+  margin-top: 14px;
+}
+.splash-tagline {
+  position: relative; z-index: 1;
+  font-size: 0.92rem; font-weight: 500; color: rgba(255, 255, 255, 0.92);
+  margin-top: 4px;
+  text-align: center; padding: 0 24px;
+  animation: fadeUp 0.5s ease both;
+}
+.splash-dots { position: relative; z-index: 1; display: flex; gap: 6px; margin-top: 16px; }
+.splash-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transition: background 0.3s, transform 0.3s;
+}
+.splash-dot.active { background: #fff; transform: scale(1.25); }
+.splash-flight { position: absolute; inset: 0; pointer-events: none; }
+.splash-plane {
+  position: absolute; font-size: 1.6rem; line-height: 1;
+  animation: heroSwoop 5s ease-in-out infinite;
+  will-change: left, top, transform;
+}
+.splash-plane::before {
+  content: ""; position: absolute; right: 100%; top: 50%;
+  width: 110px; height: 5px; border-radius: 5px; margin-top: -2.5px;
+  background: linear-gradient(to left, rgba(255,255,255,0.95), rgba(255,255,255,0));
+}
+
 .spinner {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 48px 20px; gap: 14px;

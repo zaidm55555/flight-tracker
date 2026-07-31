@@ -8,7 +8,7 @@ export default function LoginScreen() {
         <div className="login-logo">
           <div className="login-logo-mark">✈</div>
         </div>
-        <h1>FlightPulse</h1>
+        <h1>safarVibe</h1>
         <p>Track flight prices across routes</p>
         <a href="/login" className="google-btn">
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
