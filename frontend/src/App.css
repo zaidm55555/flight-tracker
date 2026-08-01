@@ -436,21 +436,31 @@ body {
   max-width: 900px; width: 100%;
 }
 .landing { flex: 1; min-width: 0; }
-.landing-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.landing-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
 .landing-logo h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
-.landing h2 { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.8px; line-height: 1.15; margin-bottom: 12px; }
-.landing-lead { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; max-width: 460px; }
-.landing-features { list-style: none; display: grid; gap: 10px; max-width: 460px; }
+.landing h2 { font-size: 2.15rem; font-weight: 800; letter-spacing: -0.8px; line-height: 1.12; margin-bottom: 14px; }
+.landing-grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+.landing-lead { color: var(--muted); font-size: 0.97rem; line-height: 1.65; margin-bottom: 24px; max-width: 470px; }
+.landing-features { list-style: none; display: grid; gap: 14px; max-width: 480px; }
 .landing-features li {
-  display: flex; align-items: flex-start; gap: 10px;
-  font-size: 0.92rem; color: var(--ink); font-weight: 600;
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 0.92rem; color: var(--ink);
 }
-.landing-features li::before {
-  content: "✓"; flex-shrink: 0;
-  width: 20px; height: 20px; border-radius: 50%;
-  background: var(--grad); color: #fff; font-size: 0.72rem; font-weight: 800;
+.landing-features li strong { display: block; font-weight: 700; margin-bottom: 2px; }
+.landing-features li small { color: var(--muted); font-size: 0.82rem; line-height: 1.5; display: block; }
+.feature-icon {
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 11px;
+  background: var(--grad-soft); color: var(--primary);
   display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
 }
+.landing-stats {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 26px; padding-top: 18px; border-top: 1px dashed var(--border-strong);
+  max-width: 480px; color: var(--muted); font-size: 0.82rem;
+}
+.landing-stats strong { color: var(--primary); font-weight: 800; }
+.landing-stats .dot { color: var(--faint); }
 .login-orb {
   position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5;
   animation: floaty 7s ease-in-out infinite; pointer-events: none;
@@ -476,10 +486,14 @@ body {
   position: relative; z-index: 1;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 24px; padding: 36px 32px;
+  border-radius: 24px; padding: 40px 32px;
   box-shadow: var(--shadow-lg);
   text-align: center; max-width: 360px; width: 100%;
   animation: fadeUp 0.5s ease both;
+}
+.login-card::before {
+  content: ""; position: absolute; top: 0; left: 24px; right: 24px; height: 3px;
+  border-radius: 0 0 6px 6px; background: var(--grad);
 }
 .login-card-title { color: var(--ink); font-size: 1.1rem; font-weight: 700; margin-bottom: 22px; }
 .login-logo-mark {
@@ -764,12 +778,14 @@ body {
 
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
-  .login-wrap { flex-direction: column; gap: 24px; }
+  .login-wrap { flex-direction: column; gap: 28px; }
   .landing { text-align: center; }
   .landing-logo { justify-content: center; }
   .landing-lead { margin-left: auto; margin-right: auto; }
   .landing-features { margin: 0 auto; text-align: left; }
+  .landing-stats { margin: 26px auto 0; justify-content: center; }
   .landing h2 { font-size: 1.7rem; }
+  .login-card { max-width: 100%; }
 }
 
 @media (max-width: 420px) {
