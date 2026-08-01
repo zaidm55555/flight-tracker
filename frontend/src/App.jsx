@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import SearchResults from './pages/SearchResults'
@@ -10,23 +10,36 @@ import Splash from './components/Splash'
 
 export default function App() {
   const [user, setUser] = useState(null)
+  const [routes, setRoutes] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  const loadRoutes = useCallback(() => {
+    return fetch('/api/routes')
+      .then(r => (r.ok ? r.json() : []))
+      .then(data => setRoutes(Array.isArray(data) ? data : []))
+      .catch(() => setRoutes([]))
+  }, [])
 
   useEffect(() => {
     let mounted = true
-    const minSplash = new Promise(resolve => setTimeout(resolve, 5000))
+    const minSplash = new Promise(resolve => setTimeout(resolve, 3000))
 
-    const sessionCheck = fetch('/api/me')
+    const boot = fetch('/api/me')
       .then(r => (r.ok ? r.json() : null))
-      .then(data => { if (mounted) setUser(data) })
-      .catch(() => {})
+      .then(async data => {
+        if (!mounted) return
+        setUser(data)
+        if (data) await loadRoutes()
+        else if (mounted) setRoutes([])
+      })
+      .catch(() => { if (mounted) setRoutes([]) })
 
-    Promise.all([sessionCheck, minSplash]).then(() => { if (mounted) setLoading(false) })
+    Promise.all([boot, minSplash]).then(() => { if (mounted) setLoading(false) })
 
     const onAuthExpired = () => setUser(null)
     window.addEventListener('auth-expired', onAuthExpired)
     return () => { mounted = false; window.removeEventListener('auth-expired', onAuthExpired) }
-  }, [])
+  }, [loadRoutes])
 
   if (loading) {
     return <Splash />
@@ -38,7 +51,7 @@ export default function App() {
     <>
       <Navbar user={user} />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home routes={routes} reloadRoutes={loadRoutes} />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/add-route" element={<AddRoute />} />
         <Route path="/manage-routes" element={<ManageRoutes />} />

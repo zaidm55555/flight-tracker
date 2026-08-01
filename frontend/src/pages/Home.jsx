@@ -1,17 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Spinner from '../components/Spinner'
 
-export default function Home() {
-  const [routes, setRoutes] = useState([])
-  const [loadingRoutes, setLoadingRoutes] = useState(true)
+export default function Home({ routes, reloadRoutes }) {
+  const loadingRoutes = routes === null
 
   useEffect(() => {
-    fetch('/api/routes')
-      .then(r => r.json())
-      .then(data => { setRoutes(data); setLoadingRoutes(false) })
-      .catch(() => setLoadingRoutes(false))
-  }, [])
+    if (routes === null) reloadRoutes()
+  }, [routes, reloadRoutes])
 
   return (
     <div className="container">
