@@ -7,11 +7,13 @@ import ManageRoutes from './pages/ManageRoutes'
 import LoginScreen from './components/LoginScreen'
 import Navbar from './components/Navbar'
 import Splash from './components/Splash'
+import Spinner from './components/Spinner'
 
 export default function App() {
   const [user, setUser] = useState(null)
   const [routes, setRoutes] = useState(null)
   const [loading, setLoading] = useState(true)
+  const seen = localStorage.getItem('sv_seen') === '1'
 
   const loadRoutes = useCallback(() => {
     return fetch('/api/routes')
@@ -22,8 +24,6 @@ export default function App() {
 
   useEffect(() => {
     let mounted = true
-    const minSplash = new Promise(resolve => setTimeout(resolve, 3000))
-
     const boot = fetch('/api/me')
       .then(r => (r.ok ? r.json() : null))
       .then(async data => {
@@ -34,15 +34,24 @@ export default function App() {
       })
       .catch(() => { if (mounted) setRoutes([]) })
 
-    Promise.all([boot, minSplash]).then(() => { if (mounted) setLoading(false) })
+    if (seen) {
+      boot.then(() => { if (mounted) setLoading(false) })
+    } else {
+      const minSplash = new Promise(resolve => setTimeout(resolve, 3000))
+      Promise.all([boot, minSplash]).then(() => {
+        if (!mounted) return
+        localStorage.setItem('sv_seen', '1')
+        setLoading(false)
+      })
+    }
 
     const onAuthExpired = () => setUser(null)
     window.addEventListener('auth-expired', onAuthExpired)
     return () => { mounted = false; window.removeEventListener('auth-expired', onAuthExpired) }
-  }, [loadRoutes])
+  }, [seen, loadRoutes])
 
   if (loading) {
-    return <Splash />
+    return seen ? <Spinner text="Loading..." /> : <Splash />
   }
 
   if (!user) return <LoginScreen />
