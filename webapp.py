@@ -249,6 +249,8 @@ def history():
     if not all([fid, o, d]):
         return jsonify([])
     match = {"flight_id": fid, "origin": o, "destination": d}
+    if dt:
+        match["date"] = dt
     added_at = route_added_at_str(o, d, dt)
     if added_at:
         match["scraped_at"] = {"$gte": added_at}
@@ -260,7 +262,7 @@ def history():
     data = [{"t": r["_id"], "p": r["p"], "pf": r["pf"]} for r in (flights_col.aggregate(pipe) if flights_col is not None else [])]
     if not data and added_at:
         latest = flights_col.find_one(
-            {"flight_id": fid, "origin": o, "destination": d},
+            {"flight_id": fid, "origin": o, "destination": d, "date": dt},
             sort=[("scraped_at", -1)]
         ) if flights_col is not None else None
         if latest:
