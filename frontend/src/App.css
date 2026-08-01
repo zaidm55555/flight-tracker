@@ -337,6 +337,12 @@ body {
 .empty p { font-size: 0.9rem; line-height: 1.6; }
 .empty .btn { margin-top: 16px; }
 .footer { margin-top: 28px; text-align: center; color: var(--faint); font-size: 0.75rem; }
+
+.guides { margin: 24px auto 0; max-width: 520px; text-align: center; }
+.guides-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.guides-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 14px; }
+.guides-links a { color: var(--primary); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+.guides-links a:hover { text-decoration: underline; }
 .route-actions .btn { min-width: 60px; text-align: center; }
 
 .route-del {
@@ -502,6 +508,8 @@ body {
 .login-note { color: var(--faint); font-size: 0.75rem; margin-top: 16px; }
 .login-blog-link { display: inline-block; margin-top: 14px; color: var(--primary); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
 .login-blog-link:hover { text-decoration: underline; }
+.login-guides { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 8px; }
+.login-guides .login-blog-link { margin-top: 0; font-size: 0.8rem; }
 
 /* ---------- User chip ---------- */
 .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }

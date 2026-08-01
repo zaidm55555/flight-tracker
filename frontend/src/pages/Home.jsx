@@ -85,6 +85,15 @@ export default function Home({ routes, reloadRoutes }) {
 
       <Link to="/add-route" className="btn-add" style={{ marginTop: 12 }}>+ Add Route</Link>
 
+      <div className="guides">
+        <div className="guides-title">Guides & Help</div>
+        <div className="guides-links">
+          <a href="/blog/how-to-use-safarvibe/">How to use SafarVibe</a>
+          <a href="/blog/how-to-track-flight-prices/">How to track flight prices in India</a>
+          <a href="/blog/install-safarvibe-app-android-ios/">Install as an app (Android & iOS)</a>
+        </div>
+      </div>
+
       <div className="footer">Powered by Google Flights · Updates every 4 hours</div>
     </div>
   )
