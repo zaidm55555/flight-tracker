@@ -10,7 +10,7 @@ function todayStr() {
     String(d.getDate()).padStart(2, '0')
 }
 
-export default function AddRoute() {
+export default function AddRoute({ onRouteAdded }) {
   const [origin, setOrigin] = useState('')
   const [dest, setDest] = useState('')
   const [date, setDate] = useState(todayStr())
@@ -30,6 +30,10 @@ export default function AddRoute() {
     setLoading(true)
     try {
       await addRoute(origin, dest, date)
+      if (onRouteAdded) {
+        await onRouteAdded()
+      }
+      window.dispatchEvent(new Event('routes-updated'))
       setMsg('Route added! Showing prices...')
       setMsgType('success')
       setTimeout(() => { navigate(`/search?from=${origin}&to=${dest}&date=${date}`) }, 800)

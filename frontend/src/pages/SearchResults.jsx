@@ -81,9 +81,14 @@ export default function SearchResults() {
     setDeleting(true)
     try {
       await deleteRouteByParams(from, to, date)
+      window.dispatchEvent(new Event('routes-updated'))
       navigate('/')
     } catch {
       setDeleting(false)
+    } finally {
+      if (!window.location.pathname.startsWith('/search')) {
+        setDeleting(false)
+      }
     }
   }
 

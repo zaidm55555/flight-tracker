@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import SearchResults from './pages/SearchResults'
 import AddRoute from './pages/AddRoute'
-import ManageRoutes from './pages/ManageRoutes'
 import Admin from './pages/Admin'
 import LoginScreen from './components/LoginScreen'
 import Navbar from './components/Navbar'
@@ -22,6 +21,12 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    const refreshRoutes = () => {
+      loadRoutes()
+    }
+
+    window.addEventListener('routes-updated', refreshRoutes)
+
     let mounted = true
     const boot = fetch('/api/me')
       .then(r => (r.ok ? r.json() : null))
@@ -42,7 +47,11 @@ export default function App() {
 
     const onAuthExpired = () => setUser(null)
     window.addEventListener('auth-expired', onAuthExpired)
-    return () => { mounted = false; window.removeEventListener('auth-expired', onAuthExpired) }
+    return () => {
+      mounted = false
+      window.removeEventListener('routes-updated', refreshRoutes)
+      window.removeEventListener('auth-expired', onAuthExpired)
+    }
   }, [loadRoutes])
 
   if (loading) {
@@ -57,8 +66,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home routes={routes} reloadRoutes={loadRoutes} />} />
         <Route path="/search" element={<SearchResults />} />
-        <Route path="/add-route" element={<AddRoute />} />
-        <Route path="/manage-routes" element={<ManageRoutes />} />
+        <Route path="/add-route" element={<AddRoute onRouteAdded={loadRoutes} />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </>
