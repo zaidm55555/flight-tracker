@@ -12,56 +12,11 @@ export default function LoginScreen() {
             <div className="login-logo-mark"><PlaneMark /></div>
             <h1><span className="wm-safar">Safar</span><span className="wm-vibe">Vibe</span></h1>
           </div>
-          <h2>Stop guessing. <span className="landing-grad">Track flight prices.</span></h2>
+          <h2>Track flight prices</h2>
           <p className="landing-lead">
-            Add a route and travel date, and SafarVibe watches the fares for you. See price
-            history charts, spot the trend, and know exactly when to book. Free, forever.
+            Add a route and travel date. SafarVibe watches the fares and shows you
+            price history so you know when to book.
           </p>
-          <ul className="landing-features">
-            <li>
-              <span className="feature-icon" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3l4 2v3l-3 4v4l3 2v3H6a7 7 0 0 1-7-7V3z"/><path d="M13 5l4 2v3l-3 4v4l3 2v3h-2a7 7 0 0 1-7-7V5z"/></svg>
-              </span>
-              <span>
-                <strong>Track any route &amp; date</strong>
-                <small>Airports across India and beyond — add as many as you like.</small>
-              </span>
-            </li>
-            <li>
-              <span className="feature-icon" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 3 5-6"/></svg>
-              </span>
-              <span>
-                <strong>Price history charts</strong>
-                <small>See the fare trend for your exact flight over days and weeks.</small>
-              </span>
-            </li>
-            <li>
-              <span className="feature-icon" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
-              </span>
-              <span>
-                <strong>Automatic price checks</strong>
-                <small>Fares refreshed every few hours, around the clock.</small>
-              </span>
-            </li>
-            <li>
-              <span className="feature-icon" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4L12 14l-3-3"/></svg>
-              </span>
-              <span>
-                <strong>Catch drops before you book</strong>
-                <small>Spot low prices early and save on every trip.</small>
-              </span>
-            </li>
-          </ul>
-          <div className="landing-stats">
-            <span><strong>Free</strong> forever</span>
-            <span className="dot" aria-hidden="true">·</span>
-            <span>No card required</span>
-            <span className="dot" aria-hidden="true">·</span>
-            <span><strong>4h</strong> refresh</span>
-          </div>
         </section>
         <div className="login-card">
           <div className="login-logo-mark login-card-mark"><PlaneMark /></div>
@@ -75,7 +30,7 @@ export default function LoginScreen() {
             </svg>
             Login with Google
           </a>
-          <div className="login-note">Free to use · No credit card required · Your routes stay private</div>
+          <div className="login-note">Your routes stay private</div>
         </div>
       </div>
     </div>
