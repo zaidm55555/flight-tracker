@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { toggleRoute, deleteRoute } from '../api'
 import Spinner from '../components/Spinner'
+import { TrashIcon } from '../components/Icons'
 
 export default function ManageRoutes() {
   const [routes, setRoutes] = useState([])
@@ -66,9 +67,9 @@ export default function ManageRoutes() {
                 ) : (
                   <button className="btn-action btn-resume" onClick={() => handleToggle(r._id)}>Resume</button>
                 )}
-                <button className="btn-action btn-del" onClick={() => handleDelete(r._id)} disabled={deletingId === r._id}>
+                <button className="btn-action btn-del" onClick={() => handleDelete(r._id)} disabled={deletingId === r._id} title="Delete route" aria-label="Delete route">
                   {deletingId === r._id && <span className="btn-spinner" />}
-                  {deletingId === r._id ? 'Deleting...' : 'Delete'}
+                  {deletingId === r._id ? '' : <TrashIcon />}
                 </button>
               </div>
             </div>

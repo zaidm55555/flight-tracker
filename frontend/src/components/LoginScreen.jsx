@@ -1,3 +1,5 @@
+import PlaneMark from './PlaneMark'
+
 export default function LoginScreen() {
   return (
     <div className="login-page">
@@ -6,9 +8,9 @@ export default function LoginScreen() {
       <div className="login-flight" aria-hidden="true"><div className="login-plane">✈</div></div>
       <div className="login-card">
         <div className="login-logo">
-          <div className="login-logo-mark">✈</div>
+          <div className="login-logo-mark"><PlaneMark /></div>
         </div>
-        <h1>safarVibe</h1>
+        <h1><span className="wm-safar">safar</span><span className="wm-vibe">Vibe</span></h1>
         <p>Track flight prices across routes</p>
         <a href="/login" className="google-btn">
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">

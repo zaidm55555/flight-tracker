@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import PlaneMark from './PlaneMark'
 
 const TAGLINES = [
   'Track every fare, land the best deal ✈',
@@ -28,8 +29,8 @@ export default function Splash() {
           <div className="splash-plane">✈</div>
         </div>
       </div>
-      <div className="splash-logo">✈</div>
-      <div className="splash-name">safarVibe</div>
+      <div className="splash-logo"><PlaneMark /></div>
+      <div className="splash-name"><span className="wm-safar">safar</span><span className="wm-vibe">Vibe</span></div>
       <div className="splash-tagline" key={index}>{TAGLINES[index]}</div>
       <div className="splash-dots">
         {TAGLINES.map((_, i) => (

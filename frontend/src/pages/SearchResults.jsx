@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import PriceChart from '../components/PriceChart'
 import Spinner from '../components/Spinner'
+import { BackIcon, TrashIcon } from '../components/Icons'
 import { deleteRouteByParams, authFetch } from '../api'
 
 const AIRLINE_COLORS = ['#0d9488', '#10b981', '#0891b2', '#059669', '#d97706', '#e11d48', '#7c3aed', '#db2777', '#4f46e5', '#65a30d']
@@ -117,14 +118,14 @@ export default function SearchResults() {
     <div className="results-body">
       <div style={{ maxWidth: 640, margin: '0 auto' }}>
         <div className="results-header">
-          <Link to="/" className="back-btn" aria-label="Back to home">←</Link>
+          <Link to="/" className="back-btn" aria-label="Back to home"><BackIcon /></Link>
           <div className="route-title">
             <div className="route-codes">{from} <span className="arrow">→</span> {to}</div>
             <div className="route-date">{date}</div>
           </div>
-          <button className="route-del" onClick={handleDelete} disabled={deleting}>
+          <button className="route-del" onClick={handleDelete} disabled={deleting} title="Delete route" aria-label="Delete route">
             {deleting && <span className="btn-spinner" />}
-            {deleting ? 'Deleting...' : 'Delete'}
+            {!deleting && <TrashIcon />}
           </button>
         </div>
 

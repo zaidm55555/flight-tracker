@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Spinner from '../components/Spinner'
+import PlaneMark from '../components/PlaneMark'
 
 export default function Home({ routes, reloadRoutes }) {
   const loadingRoutes = routes === null
@@ -26,9 +27,9 @@ export default function Home({ routes, reloadRoutes }) {
         </div>
         <div className="hero-content">
           <div className="hero-top">
-            <div className="brand-mark">✈</div>
+            <div className="brand-mark"><PlaneMark /></div>
             <div>
-              <div className="brand-name">safarVibe</div>
+              <div className="brand-name"><span className="wm-safar">safar</span><span className="wm-vibe">Vibe</span></div>
               <div className="brand-tag">Track flight prices across routes</div>
             </div>
           </div>

@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
+import { LogoutIcon } from './Icons'
+import PlaneMark from './PlaneMark'
 
 export default function Navbar({ user }) {
   return (
     <header className="navbar">
       <Link to="/" className="navbar-brand" aria-label="safarVibe home">
-        <div className="navbar-logo">✈</div>
-        <span className="navbar-name">safarVibe</span>
+        <div className="navbar-logo"><PlaneMark /></div>
+        <span className="navbar-name"><span className="wm-safar">safar</span><span className="wm-vibe">Vibe</span></span>
       </Link>
 
       <div className="navbar-flight" aria-hidden="true">
@@ -20,7 +22,7 @@ export default function Navbar({ user }) {
           {user.picture
             ? <img className="user-avatar" src={user.picture} alt={user.name} referrerPolicy="no-referrer" />
             : <div className="user-avatar user-avatar-fallback">{user.name?.charAt(0) || 'U'}</div>}
-          <a href="/logout" className="user-logout" title="Log out">Log out</a>
+          <a href="/logout" className="user-logout" title="Log out" aria-label="Log out"><LogoutIcon /></a>
         </div>
       )}
     </header>
