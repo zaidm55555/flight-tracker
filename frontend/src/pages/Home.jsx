@@ -29,7 +29,7 @@ export default function Home({ routes, reloadRoutes }) {
           <div className="hero-top">
             <div className="brand-mark"><PlaneMark /></div>
             <div>
-              <div className="brand-name"><span className="wm-safar">safar</span><span className="wm-vibe">Vibe</span></div>
+              <div className="brand-name"><span className="wm-safar">Safar </span><span className="wm-vibe">Vibe</span></div>
               <div className="brand-tag">Track flight prices across routes</div>
             </div>
           </div>

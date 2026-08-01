@@ -30,7 +30,7 @@ export default function Splash() {
         </div>
       </div>
       <div className="splash-logo"><PlaneMark /></div>
-      <div className="splash-name"><span className="wm-safar">safar</span><span className="wm-vibe">Vibe</span></div>
+      <div className="splash-name"><span className="wm-safar">Safar </span><span className="wm-vibe">Vibe</span></div>
       <div className="splash-tagline" key={index}>{TAGLINES[index]}</div>
       <div className="splash-dots">
         {TAGLINES.map((_, i) => (

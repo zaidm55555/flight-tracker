@@ -7,7 +7,7 @@ export default function Navbar({ user }) {
     <header className="navbar">
       <Link to="/" className="navbar-brand" aria-label="safarVibe home">
         <div className="navbar-logo"><PlaneMark /></div>
-        <span className="navbar-name"><span className="wm-safar">safar</span><span className="wm-vibe">Vibe</span></span>
+        <span className="navbar-name"><span className="wm-safar">Safar </span><span className="wm-vibe">Vibe</span></span>
       </Link>
 
       <div className="navbar-flight" aria-hidden="true">
