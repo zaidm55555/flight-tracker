@@ -432,16 +432,15 @@ body {
 }
 .login-wrap {
   position: relative; z-index: 1;
-  display: flex; align-items: center; gap: 40px;
-  max-width: 900px; width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 72px;
+  max-width: 920px; width: 100%;
   max-height: 100%;
-  overflow: auto;
 }
-.landing { flex: 1; min-width: 0; }
-.landing-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
-.landing-logo h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
-.landing h2 { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.8px; line-height: 1.12; margin-bottom: 14px; color: var(--ink); }
-.landing-lead { color: var(--muted); font-size: 0.97rem; line-height: 1.6; max-width: 420px; }
+.landing { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.landing-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; }
+.landing-logo h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+.landing h2 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.9px; line-height: 1.1; margin-bottom: 18px; color: var(--ink); }
+.landing-lead { color: var(--muted); font-size: 1rem; line-height: 1.7; max-width: 430px; }
 .login-orb {
   position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5;
   animation: floaty 7s ease-in-out infinite; pointer-events: none;

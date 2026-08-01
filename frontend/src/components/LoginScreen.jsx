@@ -14,8 +14,8 @@ export default function LoginScreen() {
           </div>
           <h2>Track flight prices</h2>
           <p className="landing-lead">
-            Add a route and travel date. SafarVibe watches the fares and shows you
-            price history so you know when to book.
+            Watch fares for any route. See price history charts and
+            know when it's the right time to book.
           </p>
         </section>
         <div className="login-card">
