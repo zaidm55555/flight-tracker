@@ -363,8 +363,12 @@ def stats():
 def serve(path):
     if path.startswith("api/"):
         return jsonify({"error": "Not found"}), 404
-    if path and os.path.exists(os.path.join(FRONTEND_DIST, path)):
-        return send_from_directory(FRONTEND_DIST, path)
+    if path:
+        full = os.path.join(FRONTEND_DIST, path)
+        if os.path.isdir(full):
+            full = os.path.join(full, "index.html")
+        if os.path.isfile(full):
+            return send_from_directory(FRONTEND_DIST, os.path.relpath(full, FRONTEND_DIST))
     return send_from_directory(FRONTEND_DIST, "index.html")
 
 if __name__ == "__main__":

@@ -31,6 +31,7 @@ export default function LoginScreen() {
             Login with Google
           </a>
           <div className="login-note">Your routes stay private</div>
+          <a href="/blog/how-to-track-flight-prices/" className="login-blog-link">How to track flight prices in India →</a>
         </div>
       </div>
     </div>

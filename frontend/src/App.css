@@ -500,6 +500,8 @@ body {
 .google-btn:hover { box-shadow: var(--shadow-md); background: var(--surface-2); }
 .google-btn:active { transform: scale(0.98); }
 .login-note { color: var(--faint); font-size: 0.75rem; margin-top: 16px; }
+.login-blog-link { display: inline-block; margin-top: 14px; color: var(--primary); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+.login-blog-link:hover { text-decoration: underline; }
 
 /* ---------- User chip ---------- */
 .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
