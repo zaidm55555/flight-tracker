@@ -64,7 +64,8 @@ export default function LoginScreen() {
           </div>
         </section>
         <div className="login-card">
-          <p className="login-card-title">Welcome aboard — sign in to start</p>
+          <div className="login-logo-mark login-card-mark"><PlaneMark /></div>
+          <p className="login-card-title">Sign in to start tracking</p>
           <a href="/login" className="google-btn">
             <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
               <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.1 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/>
@@ -72,7 +73,7 @@ export default function LoginScreen() {
               <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
               <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.7l6.2 5.2C36.9 40.7 44 36 44 24c0-1.3-.1-2.6-.4-3.9z"/>
             </svg>
-            Continue with Google
+            Login with Google
           </a>
           <div className="login-note">Free to use · No credit card required · Your routes stay private</div>
         </div>

@@ -28,6 +28,7 @@ if os.getenv("GOOGLE_CLIENT_ID") and os.getenv("GOOGLE_CLIENT_SECRET"):
 client = None
 flights_col = None
 routes_col = None
+users_col = None
 
 try:
     uri = os.getenv("MONGODB_URI")
@@ -36,8 +37,11 @@ try:
         db = client["flight_db"]
         flights_col = db["flight_prices"]
         routes_col = db["tracked_routes"]
+        users_col = db["users"]
 except:
     pass
+
+ADMIN_EMAILS = {"zaidm55555@gmail.com"}
 
 FRONTEND_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "dist")
 
@@ -60,6 +64,21 @@ def callback():
         "email": user.get("email", ""),
         "picture": user.get("picture", ""),
     }
+    email = user.get("email", "")
+    if users_col is not None and email:
+        now = datetime.utcnow().isoformat() + "Z"
+        users_col.update_one(
+            {"email": email},
+            {
+                "$set": {
+                    "name": user.get("name", ""),
+                    "picture": user.get("picture", ""),
+                    "last_login": now,
+                },
+                "$setOnInsert": {"joined_at": now},
+            },
+            upsert=True,
+        )
     return redirect("/")
 
 @app.route("/logout")
@@ -268,6 +287,62 @@ def history():
         if latest:
             data = [{"t": latest["scraped_at"], "p": latest["price_numeric"], "pf": latest["price_formatted"]}]
     return jsonify(data)
+
+@app.route("/api/admin")
+def admin():
+    email = user_email()
+    if email not in ADMIN_EMAILS:
+        return jsonify({"error": "Forbidden"}), 403
+    if routes_col is None or flights_col is None:
+        return jsonify({"error": "DB unavailable"}), 503
+
+    stats = {
+        "total_flights": flights_col.count_documents({}),
+        "total_routes": routes_col.count_documents({}),
+        "active_routes": routes_col.count_documents({"status": "active"}),
+        "paused_routes": routes_col.count_documents({"status": "paused"}),
+        "total_users": len(routes_col.distinct("email")),
+    }
+    last = flights_col.find_one(sort=[("scraped_at", -1)])
+    stats["last_scrape"] = last["scraped_at"] if last else "N/A"
+
+    users = []
+    for u in (users_col.find({}).sort("joined_at", 1) if users_col is not None else []):
+        u_email = u.get("email", "")
+        routes = list(routes_col.find({"email": u_email}).sort("added_at", -1)) if routes_col is not None else []
+        users.append({
+            "email": u_email,
+            "name": u.get("name", ""),
+            "picture": u.get("picture", ""),
+            "joined_at": u.get("joined_at", ""),
+            "last_login": u.get("last_login", ""),
+            "route_count": len(routes),
+            "active_count": sum(1 for r in routes if r.get("status") == "active"),
+            "routes": [{
+                "origin": r.get("origin"), "destination": r.get("destination"),
+                "date": r.get("date"), "status": r.get("status"),
+                "scrape_count": r.get("scrape_count", 0),
+                "last_scraped_at": r.get("last_scraped_at"),
+            } for r in routes],
+        })
+    return jsonify({"stats": stats, "users": users})
+
+@app.route("/api/admin/user", methods=["DELETE"])
+def admin_delete_user():
+    email = user_email()
+    if email not in ADMIN_EMAILS:
+        return jsonify({"error": "Forbidden"}), 403
+    target = request.args.get("email", "")
+    if not target:
+        return jsonify({"error": "Missing email"}), 400
+    if target == email:
+        return jsonify({"error": "Cannot delete your own account"}), 400
+    if routes_col is None:
+        return jsonify({"error": "DB unavailable"}), 503
+    res = routes_col.delete_many({"email": target})
+    if users_col is not None:
+        users_col.delete_one({"email": target})
+    return jsonify({"ok": True, "deleted_routes": res.deleted_count})
 
 @app.route("/api/stats")
 def stats():

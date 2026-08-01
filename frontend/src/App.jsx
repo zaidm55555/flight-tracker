@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import SearchResults from './pages/SearchResults'
 import AddRoute from './pages/AddRoute'
 import ManageRoutes from './pages/ManageRoutes'
+import Admin from './pages/Admin'
 import LoginScreen from './components/LoginScreen'
 import Navbar from './components/Navbar'
 import Splash from './components/Splash'
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="/search" element={<SearchResults />} />
         <Route path="/add-route" element={<AddRoute />} />
         <Route path="/manage-routes" element={<ManageRoutes />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </>
   )

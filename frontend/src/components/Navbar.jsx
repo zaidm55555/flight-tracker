@@ -2,7 +2,10 @@ import { Link } from 'react-router-dom'
 import { LogoutIcon } from './Icons'
 import PlaneMark from './PlaneMark'
 
+const ADMIN_EMAILS = ['zaidm55555@gmail.com']
+
 export default function Navbar({ user }) {
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email)
   return (
     <header className="navbar">
       <Link to="/" className="navbar-brand" aria-label="safarVibe home">
@@ -19,6 +22,7 @@ export default function Navbar({ user }) {
 
       {user && (
         <div className="navbar-user">
+          {isAdmin && <Link to="/admin" className="navbar-admin-link">Admin</Link>}
           {user.picture
             ? <img className="user-avatar" src={user.picture} alt={user.name} referrerPolicy="no-referrer" />
             : <div className="user-avatar user-avatar-fallback">{user.name?.charAt(0) || 'U'}</div>}

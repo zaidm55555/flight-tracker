@@ -420,7 +420,7 @@ body {
 /* ---------- Login ---------- */
 .login-page {
   position: relative;
-  min-height: 100vh; min-height: 100dvh;
+  height: calc(100vh - 32px); height: calc(100dvh - 32px);
   display: flex; align-items: center; justify-content: center;
   padding: 16px;
   overflow: hidden;
@@ -434,30 +434,32 @@ body {
   position: relative; z-index: 1;
   display: flex; align-items: center; gap: 40px;
   max-width: 900px; width: 100%;
+  max-height: 100%;
+  overflow: auto;
 }
 .landing { flex: 1; min-width: 0; }
-.landing-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+.landing-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
 .landing-logo h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
-.landing h2 { font-size: 2.15rem; font-weight: 800; letter-spacing: -0.8px; line-height: 1.12; margin-bottom: 14px; }
+.landing h2 { font-size: 2.05rem; font-weight: 800; letter-spacing: -0.8px; line-height: 1.12; margin-bottom: 12px; }
 .landing-grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
-.landing-lead { color: var(--muted); font-size: 0.97rem; line-height: 1.65; margin-bottom: 24px; max-width: 470px; }
-.landing-features { list-style: none; display: grid; gap: 14px; max-width: 480px; }
+.landing-lead { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 18px; max-width: 470px; }
+.landing-features { list-style: none; display: grid; gap: 10px; max-width: 480px; }
 .landing-features li {
   display: flex; align-items: flex-start; gap: 12px;
   font-size: 0.92rem; color: var(--ink);
 }
-.landing-features li strong { display: block; font-weight: 700; margin-bottom: 2px; }
-.landing-features li small { color: var(--muted); font-size: 0.82rem; line-height: 1.5; display: block; }
+.landing-features li strong { display: block; font-weight: 700; margin-bottom: 1px; }
+.landing-features li small { color: var(--muted); font-size: 0.8rem; line-height: 1.45; display: block; }
 .feature-icon {
-  flex-shrink: 0; width: 34px; height: 34px; border-radius: 11px;
+  flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px;
   background: var(--grad-soft); color: var(--primary);
   display: flex; align-items: center; justify-content: center;
   margin-top: 1px;
 }
 .landing-stats {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  margin-top: 26px; padding-top: 18px; border-top: 1px dashed var(--border-strong);
-  max-width: 480px; color: var(--muted); font-size: 0.82rem;
+  margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--border-strong);
+  max-width: 480px; color: var(--muted); font-size: 0.8rem;
 }
 .landing-stats strong { color: var(--primary); font-weight: 800; }
 .landing-stats .dot { color: var(--faint); }
@@ -486,16 +488,17 @@ body {
   position: relative; z-index: 1;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 24px; padding: 40px 32px;
+  border-radius: 24px; padding: 32px 28px;
   box-shadow: var(--shadow-lg);
-  text-align: center; max-width: 360px; width: 100%;
+  text-align: center; max-width: 340px; width: 100%;
   animation: fadeUp 0.5s ease both;
 }
 .login-card::before {
   content: ""; position: absolute; top: 0; left: 24px; right: 24px; height: 3px;
   border-radius: 0 0 6px 6px; background: var(--grad);
 }
-.login-card-title { color: var(--ink); font-size: 1.1rem; font-weight: 700; margin-bottom: 22px; }
+.login-card-mark { width: 52px; height: 52px; margin: 0 auto 14px; }
+.login-card-title { color: var(--ink); font-size: 1.05rem; font-weight: 700; margin-bottom: 20px; }
 .login-logo-mark {
   width: 58px; height: 58px; border-radius: 18px; flex-shrink: 0;
   background: var(--grad);
@@ -508,16 +511,17 @@ body {
 .login-card p { color: var(--muted); font-size: 0.87rem; margin: 6px 0 28px; }
 .google-btn {
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  width: 100%; padding: 14px;
+  width: 100%; padding: 13px;
   border: 1px solid var(--border-strong); border-radius: 14px;
-  background: var(--surface); color: var(--ink); font-size: 0.95rem; font-weight: 600;
+  background: var(--surface); color: var(--ink); font-size: 0.95rem; font-weight: 700;
   cursor: pointer; text-decoration: none;
   transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
-.google-btn:hover { box-shadow: var(--shadow-md); }
+.google-btn svg { flex-shrink: 0; }
+.google-btn:hover { box-shadow: var(--shadow-md); background: var(--surface-2); }
 .google-btn:active { transform: scale(0.98); }
-.login-note { color: var(--faint); font-size: 0.75rem; margin-top: 18px; }
+.login-note { color: var(--faint); font-size: 0.75rem; margin-top: 16px; }
 
 /* ---------- User chip ---------- */
 .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
@@ -776,15 +780,58 @@ body {
 .manage-body .btn-action.btn-resume { color: var(--success); border-color: var(--success); }
 .manage-body .btn-action.btn-del { color: var(--danger); border-color: var(--danger); }
 
+/* ---------- Admin ---------- */
+.admin-body .container { max-width: 640px; }
+.admin-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 10px;
+  margin-bottom: 14px;
+}
+.admin-stat {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 12px; text-align: center; box-shadow: var(--shadow-sm);
+  animation: fadeUp 0.4s ease both;
+}
+.admin-stat-value { font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+.admin-stat-label { font-size: 0.7rem; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+.admin-last-scrape {
+  font-size: 0.78rem; color: var(--muted); background: var(--surface-2);
+  border-radius: 10px; padding: 8px 12px; margin-bottom: 18px;
+}
+.admin-last-scrape strong { color: var(--ink); }
+.admin-section-title { font-size: 1rem; font-weight: 800; color: var(--ink); margin: 18px 0 10px; letter-spacing: -0.3px; }
+.admin-user-card { flex-wrap: wrap; }
+.admin-user-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.admin-avatar { width: 38px; height: 38px; font-size: 1rem; }
+.admin-user-name { font-size: 0.95rem; font-weight: 700; color: var(--ink); }
+.admin-user-email { font-size: 0.78rem; color: var(--faint); }
+.admin-user-routes {
+  flex-basis: 100%; margin-top: 12px; padding-top: 12px;
+  border-top: 1px dashed var(--border-strong);
+  display: grid; gap: 8px;
+}
+.admin-route-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  background: var(--surface-2); border-radius: 10px; padding: 8px 10px;
+}
+.admin-route-meta { font-size: 0.75rem; color: var(--muted); flex: 1; min-width: 120px; }
+.navbar-admin-link {
+  color: var(--primary); font-size: 0.72rem; font-weight: 700; text-decoration: none;
+  padding: 5px 10px; border-radius: 20px; border: 1px solid var(--border-strong);
+  background: var(--surface); transition: background 0.15s;
+}
+.navbar-admin-link:active { background: var(--surface-2); }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
-  .login-wrap { flex-direction: column; gap: 28px; }
-  .landing { text-align: center; }
+  .login-page { height: auto; min-height: calc(100dvh - 32px); align-items: flex-start; padding: 24px 16px; overflow: hidden; }
+  .login-wrap { flex-direction: column; gap: 24px; align-items: center; justify-content: center; overflow: hidden; }
+  .landing { text-align: center; max-width: 420px; }
   .landing-logo { justify-content: center; }
   .landing-lead { margin-left: auto; margin-right: auto; }
-  .landing-features { margin: 0 auto; text-align: left; }
-  .landing-stats { margin: 26px auto 0; justify-content: center; }
-  .landing h2 { font-size: 1.7rem; }
+  .landing-features { margin: 0 auto; text-align: left; gap: 8px; }
+  .landing-features li small { display: none; }
+  .landing-stats { margin: 14px auto 0; justify-content: center; }
+  .landing h2 { font-size: 1.6rem; }
   .login-card { max-width: 100%; }
 }
 
