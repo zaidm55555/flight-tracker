@@ -1,6 +1,6 @@
 {
-  "name": "Safar Vibe — Track flight prices",
-  "short_name": "Safar Vibe",
+  "name": "SafarVibe — Track flight prices",
+  "short_name": "SafarVibe",
   "description": "Track flight prices with live updates and price history charts",
   "start_url": "/",
   "display": "standalone",
