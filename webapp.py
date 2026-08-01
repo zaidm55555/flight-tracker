@@ -95,6 +95,10 @@ def me():
 @app.before_request
 def require_login():
     app.config["SESSION_COOKIE_SECURE"] = request.is_secure
+    host = (request.host or "").lower()
+    if host.endswith("flight-tracker-0yjb.onrender.com"):
+        target = "https://safarvibe.co.in" + request.full_path if request.query_string else "https://safarvibe.co.in" + request.path
+        return redirect(target, code=301)
     if (request.path.startswith("/api/") and request.path != "/api/me"):
         if "user" not in session:
             return jsonify({"error": "Not logged in"}), 401
