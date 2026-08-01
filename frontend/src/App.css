@@ -430,6 +430,27 @@ body {
     radial-gradient(500px 420px at 50% 115%, rgba(13, 148, 136, 0.14), transparent 60%),
     var(--bg);
 }
+.login-wrap {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; gap: 40px;
+  max-width: 900px; width: 100%;
+}
+.landing { flex: 1; min-width: 0; }
+.landing-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.landing-logo h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
+.landing h2 { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.8px; line-height: 1.15; margin-bottom: 12px; }
+.landing-lead { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; max-width: 460px; }
+.landing-features { list-style: none; display: grid; gap: 10px; max-width: 460px; }
+.landing-features li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 0.92rem; color: var(--ink); font-weight: 600;
+}
+.landing-features li::before {
+  content: "✓"; flex-shrink: 0;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--grad); color: #fff; font-size: 0.72rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
 .login-orb {
   position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5;
   animation: floaty 7s ease-in-out infinite; pointer-events: none;
@@ -455,13 +476,14 @@ body {
   position: relative; z-index: 1;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 24px; padding: 40px 32px;
+  border-radius: 24px; padding: 36px 32px;
   box-shadow: var(--shadow-lg);
   text-align: center; max-width: 360px; width: 100%;
   animation: fadeUp 0.5s ease both;
 }
+.login-card-title { color: var(--ink); font-size: 1.1rem; font-weight: 700; margin-bottom: 22px; }
 .login-logo-mark {
-  width: 58px; height: 58px; border-radius: 18px; margin: 0 auto 18px;
+  width: 58px; height: 58px; border-radius: 18px; flex-shrink: 0;
   background: var(--grad);
   color: #fff;
   display: flex; align-items: center; justify-content: center;
@@ -741,6 +763,15 @@ body {
 .manage-body .btn-action.btn-del { color: var(--danger); border-color: var(--danger); }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .login-wrap { flex-direction: column; gap: 24px; }
+  .landing { text-align: center; }
+  .landing-logo { justify-content: center; }
+  .landing-lead { margin-left: auto; margin-right: auto; }
+  .landing-features { margin: 0 auto; text-align: left; }
+  .landing h2 { font-size: 1.7rem; }
+}
+
 @media (max-width: 420px) {
   body { padding: calc(env(safe-area-inset-top, 0px) + 12px) 12px calc(env(safe-area-inset-bottom, 0px) + 12px); }
   .card { padding: 14px; }
