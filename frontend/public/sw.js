@@ -1,4 +1,4 @@
-const CACHE_NAME = "flight-tracker-v5";
+const CACHE_NAME = "flight-tracker-v6";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",
