@@ -94,7 +94,7 @@ export default function Home({ routes, reloadRoutes }) {
         </div>
       </div>
 
-      <div className="footer">Powered by Google Flights · Updates every 4 hours</div>
+      <div className="footer">Free flight price tracker · Prices updated regularly</div>
     </div>
   )
 }
