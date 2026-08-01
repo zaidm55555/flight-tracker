@@ -27,15 +27,17 @@ export default function App() {
       .then(async data => {
         if (!mounted) return
         setUser(data)
-        if (data) await loadRoutes()
-        else if (mounted) setRoutes([])
+        if (data) {
+          await loadRoutes()
+          const minSplash = new Promise(resolve => setTimeout(resolve, 3000))
+          await minSplash
+        } else if (mounted) {
+          setRoutes([])
+        }
       })
       .catch(() => { if (mounted) setRoutes([]) })
 
-    const minSplash = new Promise(resolve => setTimeout(resolve, 3000))
-    Promise.all([boot, minSplash]).then(() => {
-      if (mounted) setLoading(false)
-    })
+    boot.then(() => { if (mounted) setLoading(false) })
 
     const onAuthExpired = () => setUser(null)
     window.addEventListener('auth-expired', onAuthExpired)

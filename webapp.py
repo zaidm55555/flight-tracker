@@ -65,7 +65,7 @@ def callback():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/login")
+    return redirect("/")
 
 @app.route("/api/me")
 def me():
