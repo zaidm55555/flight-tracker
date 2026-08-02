@@ -338,11 +338,20 @@ body {
 .empty .btn { margin-top: 16px; }
 .footer { margin-top: 28px; text-align: center; color: var(--faint); font-size: 0.75rem; }
 
-.guides { margin: 24px auto 0; max-width: 520px; text-align: center; }
-.guides-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-.guides-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 14px; }
-.guides-links a { color: var(--primary); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
-.guides-links a:hover { text-decoration: underline; }
+.guides { margin: 36px auto 0; max-width: 560px; text-align: center; }
+.guides-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.guides-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.guide-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 16px 12px; text-decoration: none; color: inherit;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+@media (hover: hover) {
+  .guide-card:hover { transform: translateY(-2px); border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+}
+.guide-card-title { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+.guide-card-sub { font-size: 0.78rem; color: var(--muted); }
 .route-actions .btn { min-width: 60px; text-align: center; }
 
 .route-del {
@@ -506,10 +515,6 @@ body {
 .google-btn:hover { box-shadow: var(--shadow-md); background: var(--surface-2); }
 .google-btn:active { transform: scale(0.98); }
 .login-note { color: var(--faint); font-size: 0.75rem; margin-top: 16px; }
-.login-blog-link { display: inline-block; margin-top: 14px; color: var(--primary); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
-.login-blog-link:hover { text-decoration: underline; }
-.login-guides { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 8px; }
-.login-guides .login-blog-link { margin-top: 0; font-size: 0.8rem; }
 
 /* ---------- User chip ---------- */
 .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }

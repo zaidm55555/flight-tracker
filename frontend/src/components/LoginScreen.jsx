@@ -31,11 +31,6 @@ export default function LoginScreen() {
             Login with Google
           </a>
           <div className="login-note">Your routes stay private</div>
-          <div className="login-guides">
-            <a href="/blog/how-to-use-safarvibe/" className="login-blog-link">How to use SafarVibe →</a>
-            <a href="/blog/how-to-track-flight-prices/" className="login-blog-link">How to track flight prices in India →</a>
-            <a href="/blog/install-safarvibe-app-android-ios/" className="login-blog-link">Install SafarVibe as an app (Android & iOS) →</a>
-          </div>
         </div>
       </div>
     </div>

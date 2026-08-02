@@ -89,16 +89,25 @@ export default function Home({ routes, reloadRoutes }) {
 
       <Link to="/add-route" className="btn-add" style={{ marginTop: 12 }}>+ Add Route</Link>
 
+      <div className="footer">Free flight price tracker · Prices updated regularly</div>
+
       <div className="guides">
         <div className="guides-title">Guides & Help</div>
-        <div className="guides-links">
-          <a href="/blog/how-to-use-safarvibe/">How to use SafarVibe</a>
-          <a href="/blog/how-to-track-flight-prices/">How to track flight prices in India</a>
-          <a href="/blog/install-safarvibe-app-android-ios/">Install as an app (Android & iOS)</a>
+        <div className="guides-grid">
+          <a className="guide-card" href="/blog/how-to-use-safarvibe/">
+            <span className="guide-card-title">How to use SafarVibe</span>
+            <span className="guide-card-sub">Get started with tracking</span>
+          </a>
+          <a className="guide-card" href="/blog/how-to-track-flight-prices/">
+            <span className="guide-card-title">How to track flight prices</span>
+            <span className="guide-card-sub">Tips for booking cheaper</span>
+          </a>
+          <a className="guide-card" href="/blog/install-safarvibe-app-android-ios/">
+            <span className="guide-card-title">Install as an app</span>
+            <span className="guide-card-sub">Android & iOS home screen</span>
+          </a>
         </div>
       </div>
-
-      <div className="footer">Free flight price tracker · Prices updated regularly</div>
     </div>
   )
 }
