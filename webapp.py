@@ -103,43 +103,30 @@ def contact():
     if "@" not in email or "." not in email.split("@")[-1]:
         return jsonify({"error": "Please enter a valid email address"}), 400
     gmail_user = os.getenv("GMAIL_USER", "")
-    gmail_pass = os.getenv("GMAIL_APP_PASSWORD", "")
-    if not gmail_user or not gmail_pass:
+    resend_key = os.getenv("RESEND_API_KEY", "")
+    if not resend_key:
         return jsonify({"error": "Contact form is not configured"}), 500
     try:
-        import smtplib
-        from email.message import EmailMessage
-        msg = EmailMessage()
-        msg["Subject"] = f"SafarVibe Contact: {name}"
-        msg["From"] = gmail_user
-        msg["To"] = gmail_user
-        body = f"Name: {name}\nEmail: {email}\n\n{message}"
-        msg.set_content(body)
-        sent = False
-        last_err = None
-        for host, port, tls in (("smtp.gmail.com", 465, "ssl"), ("smtp.gmail.com", 587, "starttls")):
-            try:
-                if tls == "ssl":
-                    smtp = smtplib.SMTP_SSL(host, port, timeout=15)
-                else:
-                    smtp = smtplib.SMTP(host, port, timeout=15)
-                try:
-                    if tls == "starttls":
-                        smtp.starttls()
-                    smtp.login(gmail_user, gmail_pass)
-                    smtp.send_message(msg)
-                    sent = True
-                    break
-                finally:
-                    smtp.quit()
-            except Exception as e:
-                last_err = e
-                continue
-        if not sent:
-            raise last_err or Exception("SMTP failed")
-        return jsonify({"ok": True})
+        resp = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {resend_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": os.getenv("RESEND_FROM", "SafarVibe <onboarding@resend.dev>"),
+                "to": [os.getenv("RESEND_TO", gmail_user)],
+                "subject": f"SafarVibe Contact: {name}",
+                "text": f"Name: {name}\nEmail: {email}\n\n{message}",
+            },
+            timeout=15,
+        )
+        if resp.status_code >= 200 and resp.status_code < 300:
+            return jsonify({"ok": True})
+        print(f"[contact] Resend error {resp.status_code}: {resp.text[:300]}", flush=True)
+        return jsonify({"error": "Could not send message, please try again"}), 500
     except Exception as e:
-        print(f"[contact] SMTP error: {e!r}", flush=True)
+        print(f"[contact] Resend error: {e!r}", flush=True)
         return jsonify({"error": "Could not send message, please try again"}), 500
 
 @app.before_request
