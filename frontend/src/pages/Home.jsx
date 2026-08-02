@@ -89,8 +89,6 @@ export default function Home({ routes, reloadRoutes }) {
 
       <Link to="/add-route" className="btn-add" style={{ marginTop: 12 }}>+ Add Route</Link>
 
-      <div className="footer">Free flight price tracker · Prices updated regularly</div>
-
       <div className="guides">
         <div className="guides-title">Guides & Help</div>
         <div className="guides-grid">

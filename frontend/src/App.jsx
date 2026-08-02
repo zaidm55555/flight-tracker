@@ -30,8 +30,11 @@ export default function App() {
         setUser(data)
         if (data) {
           await loadRoutes()
-          const minSplash = new Promise(resolve => setTimeout(resolve, 3000))
-          await minSplash
+          if (!sessionStorage.getItem('sfv_splash_seen')) {
+            const minSplash = new Promise(resolve => setTimeout(resolve, 3000))
+            await minSplash
+            sessionStorage.setItem('sfv_splash_seen', '1')
+          }
         } else if (mounted) {
           setRoutes([])
         }
