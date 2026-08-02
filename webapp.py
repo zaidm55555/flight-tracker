@@ -92,6 +92,36 @@ def me():
         return jsonify(session["user"])
     return jsonify({"error": "Not logged in"}), 401
 
+@app.route("/api/contact", methods=["POST"])
+def contact():
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()[:80]
+    email = (data.get("email") or "").strip()[:120]
+    message = (data.get("message") or "").strip()[:2000]
+    if not name or not email or not message:
+        return jsonify({"error": "Name, email, and message are required"}), 400
+    if "@" not in email or "." not in email.split("@")[-1]:
+        return jsonify({"error": "Please enter a valid email address"}), 400
+    gmail_user = os.getenv("GMAIL_USER", "")
+    gmail_pass = os.getenv("GMAIL_APP_PASSWORD", "")
+    if not gmail_user or not gmail_pass:
+        return jsonify({"error": "Contact form is not configured"}), 500
+    try:
+        import smtplib
+        from email.message import EmailMessage
+        msg = EmailMessage()
+        msg["Subject"] = f"SafarVibe Contact: {name}"
+        msg["From"] = gmail_user
+        msg["To"] = gmail_user
+        body = f"Name: {name}\nEmail: {email}\n\n{message}"
+        msg.set_content(body)
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as smtp:
+            smtp.login(gmail_user, gmail_pass)
+            smtp.send_message(msg)
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": "Could not send message, please try again"}), 500
+
 @app.before_request
 def require_login():
     app.config["SESSION_COOKIE_SECURE"] = request.is_secure
@@ -99,7 +129,7 @@ def require_login():
     if host.endswith("flight-tracker-0yjb.onrender.com"):
         target = "https://safarvibe.co.in" + request.full_path if request.query_string else "https://safarvibe.co.in" + request.path
         return redirect(target, code=301)
-    if (request.path.startswith("/api/") and request.path != "/api/me"):
+    if (request.path.startswith("/api/") and request.path not in ("/api/me", "/api/contact")):
         if "user" not in session:
             return jsonify({"error": "Not logged in"}), 401
 
