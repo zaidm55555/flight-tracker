@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import SearchResults from './pages/SearchResults'
 import AddRoute from './pages/AddRoute'
@@ -14,6 +14,8 @@ export default function App() {
   const [user, setUser] = useState(null)
   const [routes, setRoutes] = useState(null)
   const [loading, setLoading] = useState(true)
+  const location = useLocation()
+  const isAdminPage = location.pathname.startsWith('/admin')
 
   const loadRoutes = useCallback(() => {
     return fetch('/api/routes')
@@ -65,7 +67,7 @@ export default function App() {
         <Route path="/manage-routes" element={<ManageRoutes />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
-      <Footer />
+      {!isAdminPage && <Footer />}
     </>
   )
 }
