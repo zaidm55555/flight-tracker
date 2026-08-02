@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { LogoutIcon } from './Icons'
 import PlaneMark from './PlaneMark'
 
-const ADMIN_EMAILS = ['zaidm55555@gmail.com']
+const ADMIN_EMAILS = ['safarvibe2416@gmail.com']
 
 export default function Navbar({ user }) {
   const isAdmin = user && ADMIN_EMAILS.includes(user.email)

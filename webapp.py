@@ -41,7 +41,7 @@ try:
 except:
     pass
 
-ADMIN_EMAILS = {"zaidm55555@gmail.com"}
+ADMIN_EMAILS = {"safarvibe2416@gmail.com"}
 
 FRONTEND_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "dist")
 
