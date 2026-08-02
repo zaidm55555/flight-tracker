@@ -1,13 +1,17 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Spinner from '../components/Spinner'
 import PlaneMark from '../components/PlaneMark'
 
 export default function Home({ routes, reloadRoutes }) {
-  const loadingRoutes = routes === null
+  const [refreshing, setRefreshing] = useState(true)
+  const loadingRoutes = refreshing || routes === null
 
   useEffect(() => {
-    reloadRoutes()
+    let mounted = true
+    setRefreshing(true)
+    Promise.resolve(reloadRoutes()).finally(() => { if (mounted) setRefreshing(false) })
+    return () => { mounted = false }
   }, [reloadRoutes])
 
   return (
