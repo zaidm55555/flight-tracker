@@ -7,8 +7,8 @@ export default function Home({ routes, reloadRoutes }) {
   const loadingRoutes = routes === null
 
   useEffect(() => {
-    if (routes === null) reloadRoutes()
-  }, [routes, reloadRoutes])
+    reloadRoutes()
+  }, [reloadRoutes])
 
   return (
     <div className="container">

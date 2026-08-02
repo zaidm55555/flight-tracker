@@ -32,7 +32,7 @@ export default function AddRoute() {
       await addRoute(origin, dest, date)
       setMsg('Route added! Showing prices...')
       setMsgType('success')
-      setTimeout(() => { navigate(`/search?from=${origin}&to=${dest}&date=${date}`) }, 800)
+      setTimeout(() => { navigate('/') }, 800)
     } catch (err) {
       setMsg(err.message)
       setMsgType('error')
