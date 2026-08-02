@@ -115,11 +115,31 @@ def contact():
         msg["To"] = gmail_user
         body = f"Name: {name}\nEmail: {email}\n\n{message}"
         msg.set_content(body)
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as smtp:
-            smtp.login(gmail_user, gmail_pass)
-            smtp.send_message(msg)
+        sent = False
+        last_err = None
+        for host, port, tls in (("smtp.gmail.com", 465, "ssl"), ("smtp.gmail.com", 587, "starttls")):
+            try:
+                if tls == "ssl":
+                    smtp = smtplib.SMTP_SSL(host, port, timeout=15)
+                else:
+                    smtp = smtplib.SMTP(host, port, timeout=15)
+                try:
+                    if tls == "starttls":
+                        smtp.starttls()
+                    smtp.login(gmail_user, gmail_pass)
+                    smtp.send_message(msg)
+                    sent = True
+                    break
+                finally:
+                    smtp.quit()
+            except Exception as e:
+                last_err = e
+                continue
+        if not sent:
+            raise last_err or Exception("SMTP failed")
         return jsonify({"ok": True})
     except Exception as e:
+        print(f"[contact] SMTP error: {e!r}", flush=True)
         return jsonify({"error": "Could not send message, please try again"}), 500
 
 @app.before_request
