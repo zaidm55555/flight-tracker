@@ -30,13 +30,15 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Inter, Arial, Helvetica, sans-serif; background: #f2f7f4; color: #0f2419; line-height: 1.7; }
     .wrap { max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
-    .nav { display: flex; align-items: center; gap: 8px; margin-bottom: 32px; }
-    .nav a { text-decoration: none; color: #0d9488; font-weight: 700; }
-    .back { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; color: #52725f; text-decoration: none; border-radius: 10px; border: 1px solid #e3efe9; margin-bottom: 18px; transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease; }
-    .back:hover { border-color: #cfe9dd; color: #0d9488; background: #eef6f2; }
-    .back svg { width: 17px; height: 17px; }
-    .brand { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
-    .brand span { color: #0d9488; }
+    .topbar { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 760px; margin: 0 auto; padding: 10px 20px; background: rgba(242,247,244,0.88); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(15,70,45,0.09); }
+    .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-logo { width: 36px; height: 36px; border-radius: 11px; overflow: hidden; flex: 0 0 auto; display: flex; box-shadow: 0 2px 8px rgba(5,150,105,0.25); }
+    .brand-logo svg { width: 100%; height: 100%; display: block; }
+    .brand-name { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; color: #0f2419; }
+    .brand-name span { color: #0d9488; }
+    .home { display: inline-flex; align-items: center; gap: 6px; color: #52725f; font-size: 0.85rem; font-weight: 600; text-decoration: none; padding: 7px 14px; border-radius: 999px; border: 1px solid #e3efe9; transition: all 0.15s ease; white-space: nowrap; }
+    .home:hover { color: #0d9488; border-color: #0d9488; background: #eef6f2; }
+    .home svg { width: 15px; height: 15px; }
     .badge { display: inline-block; background: #e7f6f0; color: #059669; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
     h1 { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.8px; line-height: 1.25; margin-bottom: 12px; }
     .lede { font-size: 1.1rem; color: #52725f; margin-bottom: 28px; }
@@ -53,6 +55,10 @@
     .install-box { background: #eef6f2; border-radius: 12px; padding: 14px 18px; margin: 14px 0; font-weight: 600; }
     @media (prefers-color-scheme: dark) {
       body { background: #0b1512; color: #ecf7f1; }
+      .topbar { background: rgba(11,21,18,0.88); border-bottom-color: #1d3328; }
+      .brand-name { color: #ecf7f1; }
+      .home { color: #9dc4b0; border-color: #1d3328; }
+      .home:hover { color: #5eead4; border-color: #5eead4; background: #16291f; }
       .card { background: #102019; box-shadow: none; }
       .lede { color: #9dc4b0; }
       .related { border-color: #1d3328; }
@@ -61,15 +67,20 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="nav">
-      <a class="brand" href="https://safarvibe.co.in/">Safar<span>Vibe</span></a>
-      <span style="color:#7fa18c;font-size:0.85rem">· Flight Price Tracker</span>
-    </div>
-
-    <a class="back" href="https://safarvibe.co.in/" title="Back to home" onclick="if (history.length > 1) { history.back(); return false; }">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+  <header class="topbar">
+    <a class="brand" href="https://safarvibe.co.in/">
+      <span class="brand-logo">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="sv-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#059669"/><stop offset="0.5" stop-color="#0d9488"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs><rect x="2" y="2" width="96" height="96" rx="24" fill="url(#sv-grad)"/><g transform="translate(18.8 17.5) scale(2.6)" fill="#fff"><path d="M22,16V14L13.5,9.07V4.5A1.5,1.5 0 0,0 12,3A1.5,1.5 0 0,0 10.5,4.5V9.07L2,14V16L10.5,13.5V19L8,20.5V22L12,21L16,22V20.5L13.5,19V13.5L22,16Z"/></g><g fill="#fff"><rect x="24" y="78" width="9" height="16" rx="2.5" opacity="0.75"/><rect x="38" y="70" width="9" height="24" rx="2.5" opacity="0.85"/><rect x="52" y="75" width="9" height="19" rx="2.5" opacity="0.9"/><rect x="66" y="62" width="9" height="32" rx="2.5"/></g></svg>
+      </span>
+      <span class="brand-name">Safar<span>Vibe</span></span>
     </a>
+    <a class="home" href="https://safarvibe.co.in/" title="Back to home" onclick="if (history.length > 1) { history.back(); return false; }">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      Home
+    </a>
+  </header>
+
+  <div class="wrap">
 
     <span class="badge">Guide</span>
     <h1>How to Install SafarVibe as an App on Android &amp; iOS</h1>
