@@ -52,6 +52,7 @@ export default function Footer() {
 
         <form className="footer-form" onSubmit={handleSubmit}>
           <div className="footer-form-title">Contact us</div>
+          <div className="footer-form-sub">Have a question or feedback? Send us a message.</div>
           <div className="footer-field">
             <input
               className="footer-input"
