@@ -388,7 +388,7 @@ def admin():
         "total_routes": routes_col.count_documents({}),
         "active_routes": routes_col.count_documents({"status": "active"}),
         "paused_routes": routes_col.count_documents({"status": "paused"}),
-        "total_users": len(routes_col.distinct("email")),
+        "total_users": users_col.count_documents({}) if users_col is not None else len(routes_col.distinct("email")),
     }
     last = flights_col.find_one(sort=[("scraped_at", -1)])
     stats["last_scrape"] = last["scraped_at"] if last else "N/A"

@@ -39,6 +39,7 @@ export default function SearchResults() {
   const [selecting, setSelecting] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
   const [savingSelection, setSavingSelection] = useState(false)
+  const [loadingAllFlights, setLoadingAllFlights] = useState(false)
   const [selError, setSelError] = useState('')
 
   useEffect(() => {
@@ -117,6 +118,7 @@ export default function SearchResults() {
     setSelError('')
     setSelecting(true)
     if (selectionDone) {
+      setLoadingAllFlights(true)
       setSelectedIds(flights.map(f => f.flight_id))
       authFetch(`/api/search?from=${from}&to=${to}&date=${date}&all=1`)
         .then(r => r.json())
@@ -125,6 +127,7 @@ export default function SearchResults() {
           else if (data && Array.isArray(data.flights)) setAllFlights(data.flights)
         })
         .catch(() => {})
+        .finally(() => setLoadingAllFlights(false))
     } else {
       setSelectedIds(allFlights.map(f => f.flight_id))
     }
@@ -195,47 +198,55 @@ export default function SearchResults() {
               <div className="selection-title">Select flights to track</div>
               <div className="selection-sub">Pick the flight timings you care about — only these will be tracked for price changes.</div>
             </div>
-            <div className="selection-tools">
-              <button className="sel-btn" onClick={() => setSelectedIds(allFlights.map(f => f.flight_id))}>Select all</button>
-              <button className="sel-btn" onClick={() => setSelectedIds([])}>Clear</button>
-              <span className="sel-count">{selectedIds.length} of {allFlights.length} selected</span>
-            </div>
-            {allFlights.map((f, i) => (
-              <div
-                key={f.flight_id}
-                className={`flight-card select-card${selectedIds.includes(f.flight_id) ? ' selected' : ''}`}
-                onClick={() => toggleSelect(f.flight_id)}
-                style={{ animationDelay: `${i * 40}ms` }}
-              >
-                <div className="card-row">
-                  <span className={`select-box${selectedIds.includes(f.flight_id) ? ' checked' : ''}`}>
-                    {selectedIds.includes(f.flight_id) && '✓'}
-                  </span>
-                  <div className="card-left">
-                    <div className="airline-badge" style={{ background: airlineColor(f.airline) }}>{airlineInitials(f.airline)}</div>
-                    <div>
-                      <div className="airline-name">{f.airline}{f.flight_number && f.flight_number !== 'N/A' ? <span className="flight-num"> · {f.flight_number}</span> : null}</div>
-                      <div className="times">{f.departure_time} <span className="time-arrow">→</span> {f.arrival_time}</div>
-                      <div className="meta">{f.duration} · {f.stops}</div>
+            {loadingAllFlights ? (
+              <div className="selection-loading">
+                <Spinner text="Loading all flights..." />
+              </div>
+            ) : (
+              <>
+                <div className="selection-tools">
+                  <button className="sel-btn" onClick={() => setSelectedIds(allFlights.map(f => f.flight_id))}>Select all</button>
+                  <button className="sel-btn" onClick={() => setSelectedIds([])}>Clear</button>
+                  <span className="sel-count">{selectedIds.length} of {allFlights.length} selected</span>
+                </div>
+                {allFlights.map((f, i) => (
+                  <div
+                    key={f.flight_id}
+                    className={`flight-card select-card${selectedIds.includes(f.flight_id) ? ' selected' : ''}`}
+                    onClick={() => toggleSelect(f.flight_id)}
+                    style={{ animationDelay: `${i * 40}ms` }}
+                  >
+                    <div className="card-row">
+                      <span className={`select-box${selectedIds.includes(f.flight_id) ? ' checked' : ''}`}>
+                        {selectedIds.includes(f.flight_id) && '✓'}
+                      </span>
+                      <div className="card-left">
+                        <div className="airline-badge" style={{ background: airlineColor(f.airline) }}>{airlineInitials(f.airline)}</div>
+                        <div>
+                          <div className="airline-name">{f.airline}{f.flight_number && f.flight_number !== 'N/A' ? <span className="flight-num"> · {f.flight_number}</span> : null}</div>
+                          <div className="times">{f.departure_time} <span className="time-arrow">→</span> {f.arrival_time}</div>
+                          <div className="meta">{f.duration} · {f.stops}</div>
+                        </div>
+                      </div>
+                      <div className="card-right">
+                        <div className="price">{f.price_formatted}</div>
+                      </div>
                     </div>
                   </div>
-                  <div className="card-right">
-                    <div className="price">{f.price_formatted}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            <button className="form-btn selection-save" onClick={() => saveSelection()} disabled={savingSelection}>
-              {savingSelection ? 'Saving...' : `Track ${selectedIds.length} selected flight${selectedIds.length === 1 ? '' : 's'}`}
-            </button>
-            {!selectionDone && (
-              <button
-                className="sel-skip"
-                disabled={savingSelection}
-                onClick={() => saveSelection(allFlights.map(f => f.flight_id))}
-              >
-                Skip — track all flights
-              </button>
+                ))}
+                <button className="form-btn selection-save" onClick={() => saveSelection()} disabled={savingSelection}>
+                  {savingSelection ? 'Saving...' : `Track ${selectedIds.length} selected flight${selectedIds.length === 1 ? '' : 's'}`}
+                </button>
+                {!selectionDone && (
+                  <button
+                    className="sel-skip"
+                    disabled={savingSelection}
+                    onClick={() => saveSelection(allFlights.map(f => f.flight_id))}
+                  >
+                    Skip — track all flights
+                  </button>
+                )}
+              </>
             )}
             {selError && <div className="msg error">{selError}</div>}
           </div>
