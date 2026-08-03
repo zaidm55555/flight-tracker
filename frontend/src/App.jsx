@@ -15,7 +15,7 @@ export default function App() {
   const [routes, setRoutes] = useState(null)
   const [loading, setLoading] = useState(true)
   const location = useLocation()
-  const isAdminPage = location.pathname.startsWith('/admin')
+  const showFooter = location.pathname === '/'
 
   const loadRoutes = useCallback(() => {
     return fetch('/api/routes')
@@ -67,7 +67,7 @@ export default function App() {
         <Route path="/manage-routes" element={<ManageRoutes />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
-      {!isAdminPage && <Footer />}
+      {showFooter && <Footer />}
     </>
   )
 }
