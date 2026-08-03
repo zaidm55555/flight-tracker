@@ -7,7 +7,7 @@ export default function Admin() {
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
   const [openUser, setOpenUser] = useState(null)
-  const [busyEmail, setBusyEmail] = useState(null)
+  const [deletingUser, setDeletingUser] = useState(null)
 
   function load() {
     fetch('/api/admin')
@@ -20,12 +20,12 @@ export default function Admin() {
 
   async function handleDeleteUser(email) {
     if (!confirm(`Delete all routes for ${email}? This cannot be undone.`)) return
-    setBusyEmail(email)
+    setDeletingUser(email)
     try {
       const r = await fetch(`/api/admin/user?email=${encodeURIComponent(email)}`, { method: 'DELETE' })
       if (r.ok) load()
     } catch {}
-    setBusyEmail(null)
+    setDeletingUser(null)
   }
 
   if (error) {
@@ -42,7 +42,7 @@ export default function Admin() {
 
   if (!data) return <Spinner text="Loading admin data..." />
 
-  const { stats, users } = data
+  const { stats, users, admins = [] } = data
   const cards = [
     { label: 'Total Users', value: stats.total_users },
     { label: 'Total Routes', value: stats.total_routes },
@@ -99,9 +99,13 @@ export default function Admin() {
                   })() : 'No logins recorded yet'}
                 </div>
               </div>
-              <button className="btn-action btn-del" onClick={() => handleDeleteUser(u.email)} disabled={busyEmail === u.email} title="Delete user's routes" aria-label="Delete user">
-                {busyEmail === u.email ? <span className="btn-spinner" /> : <TrashIcon />}
-              </button>
+              {admins.includes(u.email) ? (
+                <span className="admin-badge" title="Admin account — cannot be deleted">Admin</span>
+              ) : (
+                <button className="btn-action btn-del" onClick={() => handleDeleteUser(u.email)} disabled={deletingUser === u.email} title="Delete user's routes" aria-label="Delete user">
+                  {deletingUser === u.email ? <span className="btn-spinner" /> : <TrashIcon />}
+                </button>
+              )}
 
               {openUser === u.email && (
                 <div className="admin-user-routes">
@@ -126,6 +130,15 @@ export default function Admin() {
           ))
         )}
       </div>
+
+      {deletingUser && (
+        <div className="admin-delete-overlay">
+          <div className="admin-delete-box">
+            <span className="btn-spinner" style={{ width: 22, height: 22, borderWidth: 3 }} />
+            <p>Deleting user &amp; routes...</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

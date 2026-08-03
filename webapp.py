@@ -412,7 +412,7 @@ def admin():
                 "last_scraped_at": r.get("last_scraped_at"),
             } for r in routes],
         })
-    return jsonify({"stats": stats, "users": users})
+    return jsonify({"stats": stats, "users": users, "admins": sorted(ADMIN_EMAILS)})
 
 @app.route("/api/admin/user", methods=["DELETE"])
 def admin_delete_user():
@@ -422,6 +422,8 @@ def admin_delete_user():
     target = request.args.get("email", "")
     if not target:
         return jsonify({"error": "Missing email"}), 400
+    if target in ADMIN_EMAILS:
+        return jsonify({"error": "Cannot delete an admin account"}), 400
     if target == email:
         return jsonify({"error": "Cannot delete your own account"}), 400
     if routes_col is None:

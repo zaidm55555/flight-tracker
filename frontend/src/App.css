@@ -76,6 +76,7 @@ body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes gradShift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -856,6 +857,23 @@ body {
   background: var(--surface-2); border-radius: 10px; padding: 8px 10px;
 }
 .admin-route-meta { font-size: 0.75rem; color: var(--muted); flex: 1; min-width: 120px; }
+.admin-badge {
+  font-size: 0.68rem; font-weight: 700; color: var(--primary);
+  border: 1px solid var(--primary); border-radius: 999px; padding: 4px 10px;
+  flex-shrink: 0; opacity: 0.85;
+}
+.admin-delete-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(10, 12, 20, 0.55); backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease both;
+}
+.admin-delete-box {
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: 16px;
+  padding: 26px 34px; display: flex; align-items: center; gap: 14px;
+  box-shadow: var(--shadow-md);
+}
+.admin-delete-box p { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
 .navbar-admin-link {
   color: var(--primary); font-size: 0.72rem; font-weight: 700; text-decoration: none;
   padding: 5px 10px; border-radius: 20px; border: 1px solid var(--border-strong);
