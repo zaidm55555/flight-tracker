@@ -706,6 +706,55 @@ body {
 .pending-scrape .btn-spinner { width: 26px; height: 26px; border-width: 3px; color: var(--primary); margin: 0; }
 .no-flights a { color: var(--primary); text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-top: 8px; display: inline-block; cursor: pointer; }
 
+/* ---------- Flight selection ---------- */
+.results-header .route-edit {
+  border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--ink);
+  font-size: 0.75rem; font-weight: 700; padding: 8px 14px; border-radius: 999px; flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.results-header .route-edit:hover { background: var(--border); border-color: var(--primary); }
+.selection-panel { animation: fadeUp 0.4s ease both; }
+.selection-head { text-align: center; margin-bottom: 16px; }
+.selection-title { font-size: 1.3rem; font-weight: 800; color: var(--ink); letter-spacing: -0.3px; }
+.selection-sub { font-size: 0.85rem; color: var(--muted); margin-top: 6px; max-width: 460px; margin-left: auto; margin-right: auto; }
+.selection-tools {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+}
+.selection-tools .sel-count { margin-left: auto; font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.sel-btn {
+  border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--ink);
+  font-size: 0.78rem; font-weight: 700; padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.sel-btn:hover { background: var(--border); border-color: var(--primary); }
+.select-card { display: flex; align-items: center; cursor: pointer; user-select: none; }
+.select-card .select-box {
+  width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--border-strong);
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  font-size: 0.72rem; font-weight: 800; color: #fff; transition: background 0.15s, border-color 0.15s;
+}
+.select-card .select-box.checked { background: var(--primary); border-color: var(--primary); }
+.select-card.selected { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary), var(--shadow-sm); }
+.select-card.selected::before { opacity: 1; }
+.selection-save {
+  display: block; width: 100%; height: 52px; margin-top: 14px;
+  background: var(--grad); color: #fff; border: none; border-radius: 14px;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 8px 22px rgba(13, 148, 136, 0.3);
+}
+.selection-save:active { transform: scale(0.98); }
+.selection-save:disabled { opacity: 0.6; cursor: default; transform: none; }
+.sel-skip {
+  display: block; margin: 10px auto 0; border: none; background: none; color: var(--muted);
+  font-size: 0.8rem; font-weight: 600; text-decoration: underline; cursor: pointer;
+}
+.sel-skip:hover { color: var(--primary); }
+.sel-skip:disabled { opacity: 0.6; cursor: default; }
+.selection-panel .msg { font-size: 0.85rem; margin-top: 12px; text-align: center; font-weight: 500; }
+.selection-panel .msg.error { color: var(--danger); }
+
 /* ---------- Add Route page ---------- */
 .form-page { display: flex; flex-direction: column; align-items: center; }
 .form-page .container { max-width: 420px; width: 100%; }

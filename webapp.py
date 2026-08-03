@@ -47,7 +47,8 @@ FRONTEND_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fronte
 
 @app.route("/login")
 def login():
-    return oauth.google.authorize_redirect(url_for("callback", _external=True))
+    redirect_uri = os.getenv("OAUTH_REDIRECT_URI") or url_for("callback", _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
 
 @app.route("/callback")
 def callback():
@@ -189,11 +190,16 @@ def add_route_meta(r):
     route_id = f"{r['origin']}_{r['destination']}_{r['date']}"
     r["flight_count"] = 0
     if flights_col is not None:
+        tracked = r.get("tracked_flight_ids") or []
+        match = {"route_id": route_id}
+        if tracked:
+            match["flight_id"] = {"$in": tracked}
         pipe = [
-            {"$match": {"route_id": route_id}},
+            {"$match": match},
             {"$group": {"_id": "$flight_id"}}
         ]
         r["flight_count"] = len(list(flights_col.aggregate(pipe)))
+    r["selection_done"] = bool(r.get("selection_done"))
     r["scraped_at_str"] = ""
     if r.get("last_scraped_at"):
         try:
@@ -268,6 +274,38 @@ def toggle_route(route_id):
     routes_col.update_one({"_id": ObjectId(route_id)}, {"$set": {"status": new_status}})
     return jsonify({"ok": True, "status": new_status})
 
+@app.route("/api/routes/select", methods=["POST"])
+def select_route_flights():
+    data = request.get_json(silent=True) or {}
+    origin = (data.get("origin") or "").upper()
+    dest = (data.get("destination") or "").upper()
+    dt = data.get("date", "")
+    flight_ids = data.get("flight_ids") or []
+    if not all([origin, dest, dt]):
+        return jsonify({"error": "Fill in all fields"}), 400
+    if not isinstance(flight_ids, list) or not flight_ids:
+        return jsonify({"error": "Select at least one flight"}), 400
+    email = user_email()
+    route = routes_col.find_one({"origin": origin, "destination": dest, "date": dt, "email": email})
+    if not route:
+        return jsonify({"error": "Route not found"}), 404
+    route_id = f"{origin}_{dest}_{dt}"
+    valid = []
+    if flights_col is not None:
+        pipe = [
+            {"$match": {"route_id": route_id}},
+            {"$group": {"_id": "$flight_id"}}
+        ]
+        known = {r["_id"] for r in flights_col.aggregate(pipe)}
+        valid = [fid for fid in flight_ids if fid in known]
+    if not valid:
+        return jsonify({"error": "None of the selected flights exist for this route"}), 400
+    routes_col.update_one(
+        {"_id": route["_id"]},
+        {"$set": {"tracked_flight_ids": valid, "selection_done": True}}
+    )
+    return jsonify({"ok": True, "count": len(valid)})
+
 @app.route("/api/search")
 def search():
     o = request.args.get("from","").upper()
@@ -278,6 +316,11 @@ def search():
     added_at = route_added_at_str(o, d, dt)
     if not added_at:
         return jsonify({"error": "Route not tracked"}), 403
+    route = routes_col.find_one(
+        {"origin": o, "destination": d, "date": dt, "email": user_email()}
+    ) if routes_col is not None else None
+    tracked_ids = (route or {}).get("tracked_flight_ids") or []
+    selection_done = bool(route and route.get("selection_done"))
     pipe = [
         {"$match": {"origin": o, "destination": d, "date": dt}},
         {"$sort": {"scraped_at": -1}},
@@ -290,15 +333,18 @@ def search():
         ) if routes_col is not None else None
         if pending:
             return jsonify({"pending_scrape": True})
-        route = routes_col.find_one(
+        route2 = routes_col.find_one(
             {"origin": o, "destination": d, "date": dt, "status": "active"}
         ) if routes_col is not None else None
-        scraped = bool(route and (route.get("last_scraped_at") or route.get("scrape_count", 0) > 0))
-        return jsonify({"flights": [], "scraped": scraped})
+        scraped = bool(route2 and (route2.get("last_scraped_at") or route2.get("scrape_count", 0) > 0))
+        return jsonify({"flights": [], "scraped": scraped, "selection_done": selection_done})
+    if tracked_ids and request.args.get("all") != "1":
+        tracked_set = set(tracked_ids)
+        flights = [f for f in flights if f.get("flight_id") in tracked_set]
     for f in flights:
         f.pop("_id", None)
     flights.sort(key=lambda f: f.get("price_numeric", 0))
-    return jsonify({"flights": flights, "scraped": True})
+    return jsonify({"flights": flights, "scraped": True, "selection_done": selection_done})
 
 @app.route("/api/history")
 def history():

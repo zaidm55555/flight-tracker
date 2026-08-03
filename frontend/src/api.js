@@ -49,6 +49,17 @@ export async function toggleRoute(id) {
   return r.json()
 }
 
+export async function selectRouteFlights(origin, destination, date, flightIds) {
+  const r = await authFetch(`${BASE}/api/routes/select`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ origin, destination, date, flight_ids: flightIds })
+  })
+  const data = await r.json()
+  if (!r.ok) throw new Error(data.error || 'Failed to save flight selection')
+  return data
+}
+
 export async function searchFlights(from, to, date) {
   const params = new URLSearchParams({ from: from.toUpperCase(), to: to.toUpperCase(), date })
   const r = await authFetch(`${BASE}/search?${params}`)

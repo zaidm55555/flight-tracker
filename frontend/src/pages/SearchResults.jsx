@@ -3,7 +3,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import PriceChart from '../components/PriceChart'
 import Spinner from '../components/Spinner'
 import { BackIcon, TrashIcon } from '../components/Icons'
-import { deleteRouteByParams, authFetch } from '../api'
+import { deleteRouteByParams, authFetch, selectRouteFlights } from '../api'
 
 const AIRLINE_COLORS = ['#0d9488', '#10b981', '#0891b2', '#059669', '#d97706', '#e11d48', '#7c3aed', '#db2777', '#4f46e5', '#65a30d']
 
@@ -27,6 +27,7 @@ export default function SearchResults() {
   const navigate = useNavigate()
 
   const [flights, setFlights] = useState([])
+  const [allFlights, setAllFlights] = useState([])
   const [loading, setLoading] = useState(true)
   const [pendingScrape, setPendingScrape] = useState(false)
   const [scraped, setScraped] = useState(false)
@@ -34,6 +35,11 @@ export default function SearchResults() {
   const [historyData, setHistoryData] = useState({})
   const [historyLoading, setHistoryLoading] = useState(null)
   const [deleting, setDeleting] = useState(false)
+  const [selectionDone, setSelectionDone] = useState(false)
+  const [selecting, setSelecting] = useState(false)
+  const [selectedIds, setSelectedIds] = useState([])
+  const [savingSelection, setSavingSelection] = useState(false)
+  const [selError, setSelError] = useState('')
 
   useEffect(() => {
     if (!from || !to || !date) { setLoading(false); return }
@@ -48,23 +54,29 @@ export default function SearchResults() {
           if (Array.isArray(data)) {
             setPendingScrape(false)
             setScraped(data.length === 0 ? false : true)
+            setAllFlights(data)
+            setSelectionDone(true)
             setFlights(data)
             setLoading(false)
           } else if (data && data.pending_scrape) {
             setPendingScrape(true)
             setFlights([])
+            setAllFlights([])
             setScraped(false)
             setLoading(false)
             timer = setTimeout(load, 5000)
           } else if (data && Array.isArray(data.flights)) {
             setPendingScrape(false)
             setScraped(!!data.scraped)
+            setAllFlights(data.flights)
+            setSelectionDone(!!data.selection_done)
             setFlights(data.flights)
             setLoading(false)
           } else {
             setPendingScrape(false)
             setScraped(false)
             setFlights([])
+            setAllFlights([])
             setLoading(false)
           }
         })
@@ -101,6 +113,46 @@ export default function SearchResults() {
     }
   }
 
+  function startSelection() {
+    setSelError('')
+    setSelecting(true)
+    if (selectionDone) {
+      setSelectedIds(flights.map(f => f.flight_id))
+      authFetch(`/api/search?from=${from}&to=${to}&date=${date}&all=1`)
+        .then(r => r.json())
+        .then(data => {
+          if (Array.isArray(data)) setAllFlights(data)
+          else if (data && Array.isArray(data.flights)) setAllFlights(data.flights)
+        })
+        .catch(() => {})
+    } else {
+      setSelectedIds(allFlights.map(f => f.flight_id))
+    }
+  }
+
+  function toggleSelect(fid) {
+    setSelectedIds(prev => prev.includes(fid) ? prev.filter(id => id !== fid) : [...prev, fid])
+  }
+
+  async function saveSelection(ids = selectedIds) {
+    if (ids.length === 0) {
+      setSelError('Select at least one flight to track')
+      return
+    }
+    setSavingSelection(true)
+    setSelError('')
+    try {
+      await selectRouteFlights(from, to, date, ids)
+      setSelectionDone(true)
+      setSelecting(false)
+      setFlights(allFlights.filter(f => ids.includes(f.flight_id)))
+    } catch (err) {
+      setSelError(err.message)
+    } finally {
+      setSavingSelection(false)
+    }
+  }
+
   if (!from || !to || !date) {
     return (
       <div className="no-flights" style={{ maxWidth: 520, margin: '20px auto' }}>
@@ -123,6 +175,9 @@ export default function SearchResults() {
             {deleting && <span className="btn-spinner" />}
             {!deleting && <TrashIcon />}
           </button>
+          {selectionDone && flights.length > 0 && !selecting && (
+            <button className="route-edit" onClick={startSelection} title="Edit tracked flights">Edit flights</button>
+          )}
         </div>
 
         {loading ? (
@@ -133,6 +188,56 @@ export default function SearchResults() {
             <p>Running your first price check for {from} → {to}...</p>
             <p className="hint">This takes about a minute — we'll show the prices here automatically.</p>
             <Link to="/">Back to home</Link>
+          </div>
+        ) : selecting || (!selectionDone && allFlights.length > 0) ? (
+          <div className="selection-panel">
+            <div className="selection-head">
+              <div className="selection-title">Select flights to track</div>
+              <div className="selection-sub">Pick the flight timings you care about — only these will be tracked for price changes.</div>
+            </div>
+            <div className="selection-tools">
+              <button className="sel-btn" onClick={() => setSelectedIds(allFlights.map(f => f.flight_id))}>Select all</button>
+              <button className="sel-btn" onClick={() => setSelectedIds([])}>Clear</button>
+              <span className="sel-count">{selectedIds.length} of {allFlights.length} selected</span>
+            </div>
+            {allFlights.map((f, i) => (
+              <div
+                key={f.flight_id}
+                className={`flight-card select-card${selectedIds.includes(f.flight_id) ? ' selected' : ''}`}
+                onClick={() => toggleSelect(f.flight_id)}
+                style={{ animationDelay: `${i * 40}ms` }}
+              >
+                <div className="card-row">
+                  <span className={`select-box${selectedIds.includes(f.flight_id) ? ' checked' : ''}`}>
+                    {selectedIds.includes(f.flight_id) && '✓'}
+                  </span>
+                  <div className="card-left">
+                    <div className="airline-badge" style={{ background: airlineColor(f.airline) }}>{airlineInitials(f.airline)}</div>
+                    <div>
+                      <div className="airline-name">{f.airline}{f.flight_number && f.flight_number !== 'N/A' ? <span className="flight-num"> · {f.flight_number}</span> : null}</div>
+                      <div className="times">{f.departure_time} <span className="time-arrow">→</span> {f.arrival_time}</div>
+                      <div className="meta">{f.duration} · {f.stops}</div>
+                    </div>
+                  </div>
+                  <div className="card-right">
+                    <div className="price">{f.price_formatted}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button className="form-btn selection-save" onClick={() => saveSelection()} disabled={savingSelection}>
+              {savingSelection ? 'Saving...' : `Track ${selectedIds.length} selected flight${selectedIds.length === 1 ? '' : 's'}`}
+            </button>
+            {!selectionDone && (
+              <button
+                className="sel-skip"
+                disabled={savingSelection}
+                onClick={() => saveSelection(allFlights.map(f => f.flight_id))}
+              >
+                Skip — track all flights
+              </button>
+            )}
+            {selError && <div className="msg error">{selError}</div>}
           </div>
         ) : flights.length > 0 ? (
           flights.map((f, i) => {
