@@ -30,7 +30,7 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true)
   const [pendingScrape, setPendingScrape] = useState(false)
   const [scraped, setScraped] = useState(false)
-  const [expanded, setExpanded] = useState(null)
+  const [expanded, setExpanded] = useState([])
   const [historyData, setHistoryData] = useState({})
   const [historyLoading, setHistoryLoading] = useState(null)
   const [deleting, setDeleting] = useState(false)
@@ -88,11 +88,7 @@ export default function SearchResults() {
   }
 
   function toggleCard(fid) {
-    if (expanded === fid) {
-      setExpanded(null)
-      return
-    }
-    setExpanded(fid)
+    setExpanded(prev => prev.includes(fid) ? prev.filter(id => id !== fid) : [...prev, fid])
     if (!historyData[fid]) {
       setHistoryLoading(fid)
       authFetch(`/api/history?flight_id=${encodeURIComponent(fid)}&from=${from}&to=${to}&date=${date}`)
@@ -145,7 +141,7 @@ export default function SearchResults() {
             const highest = hist.length ? Math.max(...hist.map(x => x.p)) : null
             const last = hist.length ? hist[hist.length - 1] : null
             return (
-              <div key={f.flight_id} className={`flight-card${expanded === f.flight_id ? ' expanded' : ''}`} onClick={() => toggleCard(f.flight_id)} style={{ animationDelay: `${i * 50}ms` }}>
+              <div key={f.flight_id} className={`flight-card${expanded.includes(f.flight_id) ? ' expanded' : ''}`} onClick={() => toggleCard(f.flight_id)} style={{ animationDelay: `${i * 50}ms` }}>
                 <div className="card-row">
                   <div className="card-left">
                     <div className="airline-badge" style={{ background: airlineColor(f.airline) }}>{airlineInitials(f.airline)}</div>
@@ -160,7 +156,7 @@ export default function SearchResults() {
                     <div className="hint">View history</div>
                   </div>
                 </div>
-                {expanded === f.flight_id && (
+                {expanded.includes(f.flight_id) && (
                   <div className="chart-box">
                     {historyLoading === f.flight_id ? (
                       <div className="history-loading"><span className="btn-spinner" /> Loading price history...</div>
