@@ -6,7 +6,7 @@ Scrapes live flight prices and detailed information for any route on a specified
 date using ixigo's internal search/stream API (captured via Playwright, since the
 endpoint requires a real browser session for authorization).
 
-Unlike the Google Flights scraper, this reliably returns EVERY flight for the
+Unlike the previous card-DOM scraper, this reliably returns EVERY flight for the
 route/date in a single request — the stream payload contains one entry per flight
 (e.g. 44 for BDQ → BLR on 2026-08-11), so validation is simple:
     len(flights) == expected_count
@@ -238,7 +238,7 @@ class IxigoScraper:
 
 
 def generate_flight_id(airline, dep_time, arr_time, stops):
-    """Stable flight ID mirroring flight_scraper.generate_flight_id (fuzzy buckets)."""
+    """Stable flight ID using the airline, departure/arrival times and stop count."""
     norm_airline = "".join(airline.lower().split()) or "unknown"
     raw = f"{norm_airline}|{dep_time}|{arr_time}|{stops}"
     short_hash = hashlib.md5(raw.encode()).hexdigest()[:10]

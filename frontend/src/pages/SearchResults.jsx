@@ -307,7 +307,7 @@ export default function SearchResults() {
             <p>{scraped ? `No flights available for ${from} → ${to} on ${date}.` : `No prices available for this route yet.`}</p>
             <p className="hint">
               {scraped
-                ? 'The price check ran, but Google Flights has no flights for this route on this date.'
+                ? 'The price check ran, but no flights are available for this route on this date.'
                 : 'The first price check hasn\'t run yet — prices will appear here after the next update.'}
             </p>
             <Link to="/">Back to home</Link>

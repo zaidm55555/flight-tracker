@@ -1,6 +1,6 @@
 # safarVibe
 
-Flight price tracker with a React SPA frontend, Flask API backend, and MongoDB storage. Scrapes Google Flights via Playwright every 4 hours (GitHub Actions cron). PWA-enabled with price history charts.
+Flight price tracker with a React SPA frontend, Flask API backend, and MongoDB storage. Scrapes complete flight lists from ixigo via Playwright every 4 hours (GitHub Actions cron). PWA-enabled with price history charts.
 
 ## Live
 
@@ -11,13 +11,13 @@ Flight price tracker with a React SPA frontend, Flask API backend, and MongoDB s
 - **Frontend**: React 18 + Vite + React Router + Chart.js (PWA)
 - **Backend**: Flask (Python) — pure JSON API
 - **Database**: MongoDB Atlas (`flight_db`)
-- **Scraper**: Playwright + BeautifulSoup (Google Flights)
+- **Scraper**: Playwright + ixigo search/stream API
 - **Deploy**: Render (web service) + GitHub Actions (scraper cron)
 
 ## Project Structure
 
 ```
-flight_scraper.py    # Google Flights scraper (Playwright)
+ixigo_scraper.py      # ixigo scraper (Playwright, captures search/stream API)
 webapp.py            # Flask API server (serves SPA from frontend/dist/)
 init_routes.py       # Seed tracked_routes collection
 requirements.txt     # Python dependencies
@@ -45,10 +45,10 @@ cd frontend && npm run dev     # Vite on :3000 (proxies /api to :5000)
 ## Scraper
 
 ```bash
-python3 flight_scraper.py --from AMD --to BLR --date 2026-08-11 --save-db
+python3 ixigo_scraper.py --from AMD --to BLR --date 2026-08-11
 
-# Scrape all active routes
-python3 flight_scraper.py --all --save-db
+# Scrape all active routes (saves to MongoDB)
+python3 ixigo_scraper.py --all
 ```
 
 ## API Endpoints
