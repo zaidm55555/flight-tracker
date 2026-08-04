@@ -147,7 +147,7 @@ class IxigoScraper:
         display_fare_str = f"₹{display_fare:,}" if display_fare else "N/A"
 
         flight_id = generate_flight_id(
-            airline, dep_time, arr_time, stop_count
+            airline, dep_time, arr_time, stop_count, flight_numbers
         )
 
         return {
@@ -237,10 +237,16 @@ class IxigoScraper:
         return flights
 
 
-def generate_flight_id(airline, dep_time, arr_time, stops):
-    """Stable flight ID using the airline, departure/arrival times and stop count."""
+def generate_flight_id(airline, dep_time, arr_time, stops, flight_numbers=""):
+    """Stable flight ID for a distinct itinerary.
+
+    Includes the flight numbers so two itineraries sharing the same time slot
+    (same departure/arrival/stops) but using different connecting flights get
+    distinct IDs — every entry in the stream is shown as its own flight.
+    """
     norm_airline = "".join(airline.lower().split()) or "unknown"
-    raw = f"{norm_airline}|{dep_time}|{arr_time}|{stops}"
+    norm_nums = "".join(flight_numbers.lower().split())
+    raw = f"{norm_airline}|{dep_time}|{arr_time}|{stops}|{norm_nums}"
     short_hash = hashlib.md5(raw.encode()).hexdigest()[:10]
     return f"{norm_airline}_{dep_time}_{arr_time}_{stops}_{short_hash}"
 
