@@ -163,23 +163,6 @@ class FlightScraper:
 
                 page.wait_for_selector('li', state='attached', timeout=15000)
                 page.wait_for_timeout(4000)
-
-                # Expand "View more flights" so hidden itineraries are scraped too
-                try:
-                    expanded = 0
-                    for _ in range(5):
-                        more_btn = page.get_by_text("View more flights", exact=True).first
-                        if not more_btn or not more_btn.is_visible():
-                            break
-                        more_btn.scroll_into_view_if_needed()
-                        more_btn.click()
-                        page.wait_for_timeout(2500)
-                        expanded += 1
-                    if expanded:
-                        print(f"[+] Clicked 'View more flights' {expanded} time(s) to expand results")
-                except Exception:
-                    print("[!] No 'View more flights' button found")
-
                 page.evaluate("window.scrollBy(0, 1000)")
                 page.wait_for_timeout(1500)
 
