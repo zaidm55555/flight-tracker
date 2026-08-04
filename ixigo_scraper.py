@@ -12,6 +12,7 @@ route/date in a single request — the stream payload contains one entry per fli
     len(flights) == expected_count
 """
 
+import os
 import sys
 import re
 import json
@@ -19,12 +20,21 @@ import csv
 import hashlib
 import argparse
 from datetime import datetime
+from dotenv import load_dotenv
+
+try:
+    import pymongo
+    HAS_PYMONGO = True
+except ImportError:
+    HAS_PYMONGO = False
 
 try:
     from tabulate import tabulate
     HAS_TABULATE = True
 except ImportError:
     HAS_TABULATE = False
+
+load_dotenv("atlas-credentials.env")
 
 
 class IxigoScraper:
@@ -286,6 +296,162 @@ def export_csv(flights, filename):
     print(f"[+] Exported {len(flights)} flight(s) to: {filename}")
 
 
+def get_mongo_collection(name="flight_prices"):
+    mongo_uri = os.getenv("MONGODB_URI")
+    if not mongo_uri or not HAS_PYMONGO:
+        return None, None
+    try:
+        client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        return client, client["flight_db"][name]
+    except Exception as err:
+        print(f"[!] MongoDB connection error: {err}")
+        return None, None
+
+
+def get_active_routes():
+    """Fetch all active routes from tracked_routes collection, deduped by route."""
+    client, col = get_mongo_collection("tracked_routes")
+    if col is None:
+        return []
+    routes = list(col.find({"status": "active"}).sort("added_at", 1))
+    seen = set()
+    unique = []
+    for r in routes:
+        key = (r["origin"], r["destination"], r["date"])
+        if key not in seen:
+            seen.add(key)
+            unique.append(r)
+    if unique:
+        print(f"[+] Loaded {len(unique)} unique active route(s) to scrape (from {len(routes)} tracker(s)):")
+        for r in unique:
+            print(f"    {r['origin']} → {r['destination']} on {r['date']}")
+    else:
+        print("[!] No active routes found in tracked_routes.")
+    client.close()
+    return unique
+
+
+def scrape_all_routes():
+    """Scrape all active routes and save results to MongoDB.
+
+    If a route returns 0 flights (e.g. ixigo blocked the request), the route's
+    pending flag is NOT cleared so the frontend keeps showing "check running",
+    and a nonzero exit code is raised so the GitHub Actions job fails visibly.
+    """
+    routes = get_active_routes()
+    if not routes:
+        return
+
+    scraper = IxigoScraper()
+    total_flights = 0
+    failed = []
+
+    for route in routes:
+        origin = route["origin"]
+        dest = route["destination"]
+        date = route["date"]
+        route_id = f"{origin}_{dest}_{date}"
+
+        print(f"\n{'='*50}")
+        print(f" Scraping {origin} → {dest} on {date}")
+        print(f"{'='*50}")
+
+        flights = scraper.scrape(origin=origin, destination=dest, travel_date=date)
+
+        print(f"\n[+] Extracted {len(flights)} flights")
+
+        for f in flights:
+            f["route_id"] = route_id
+
+        if not flights:
+            print(f"[!] WARNING: 0 flights extracted for {origin} → {dest} on {date}. "
+                  f"Not clearing pending flag; will retry next cycle.")
+            failed.append(route_id)
+            continue
+
+        display_terminal_table(flights)
+        total_flights += len(flights)
+
+        purge_route_data(origin, dest, date)
+        save_to_mongodb(flights)
+
+        update_route_metadata(route, len(flights))
+
+    print(f"\n[+] Scraped {len(routes)} route(s), {total_flights} total flight records.")
+
+    if failed:
+        print(f"[!] FAILED routes (0 flights): {', '.join(failed)}")
+        sys.exit(1)
+
+
+def purge_route_data(origin, dest, date):
+    """Remove old-source records for a route after a successful ixigo scrape.
+
+    Google-flights records use different flight_ids than ixigo, so keeping them
+    would mix sources in /api/search and break tracked_flight_ids matching.
+    Reset the route's flight selection so users re-pick from the ixigo list.
+    """
+    mongo_uri = os.getenv("MONGODB_URI")
+    if not mongo_uri or not HAS_PYMONGO:
+        return
+    client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+    try:
+        flight_col = client["flight_db"]["flight_prices"]
+        del_count = flight_col.delete_many(
+            {"origin": origin, "destination": dest, "date": date}
+        ).deleted_count
+        print(f"[+] Purged {del_count} old flight record(s) for {origin} → {dest} on {date}")
+
+        routes_col = client["flight_db"]["tracked_routes"]
+        routes_col.update_many(
+            {"origin": origin, "destination": dest, "date": date},
+            {"$set": {"tracked_flight_ids": [], "selection_done": False}}
+        )
+    except Exception as err:
+        print(f"[!] Failed to purge route data: {err}")
+    finally:
+        client.close()
+
+
+def update_route_metadata(route, record_count):
+    """Update last_scraped_at and increment scrape_count for all active trackers of a route."""
+    client, col = get_mongo_collection("tracked_routes")
+    if col is None:
+        return
+    try:
+        col.update_many(
+            {"origin": route["origin"], "destination": route["destination"],
+             "date": route["date"], "status": "active"},
+            {"$set": {"last_scraped_at": datetime.utcnow().isoformat() + "Z"},
+             "$inc": {"scrape_count": 1},
+             "$unset": {"pending_scrape": "", "pending_scrape_at": ""}}
+        )
+    except Exception as err:
+        print(f"[!] Failed to update route metadata: {err}")
+    finally:
+        client.close()
+
+
+def save_to_mongodb(flights_data):
+    mongo_uri = os.getenv("MONGODB_URI")
+    if not mongo_uri or not HAS_PYMONGO:
+        print("[!] MongoDB URI not found or pymongo not installed. Skipping.")
+        return False
+    try:
+        client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        collection = client["flight_db"]["flight_prices"]
+        if isinstance(flights_data, list) and flights_data:
+            for f in flights_data:
+                if "route_id" not in f:
+                    f["route_id"] = f"{f['origin']}_{f['destination']}_{f['date']}"
+            result = collection.insert_many(flights_data)
+            print(f"[+] Inserted {len(result.inserted_ids)} records into MongoDB.")
+            return True
+    except Exception as err:
+        print(f"[!] MongoDB error: {err}")
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="Scrape one-way flight prices and details from ixigo for a route and date.")
     parser.add_argument("-f", "--from", dest="origin", help="Origin airport code (e.g. BDQ, BOM, JFK)")
@@ -294,11 +460,17 @@ def main():
     parser.add_argument("-c", "--currency", dest="currency", default="INR", help="Currency code (default: INR)")
     parser.add_argument("-o", "--output", dest="output", choices=["console", "json", "csv", "all"], default="console", help="Output format (default: console)")
     parser.add_argument("--headed", action="store_true", help="Run browser in visible mode")
+    parser.add_argument("--all", action="store_true", help="Scrape all active routes from tracked_routes collection and save to MongoDB")
+    parser.add_argument("--save-db", action="store_true", help="Save results to MongoDB")
 
     args = parser.parse_args()
 
+    if args.all:
+        scrape_all_routes()
+        return
+
     if not all([args.origin, args.destination, args.date]):
-        parser.error("--from, --to, and --date are required")
+        parser.error("--from, --to, and --date are required unless --all is used")
 
     try:
         datetime.strptime(args.date, "%Y-%m-%d")

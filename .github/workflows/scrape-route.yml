@@ -32,6 +32,6 @@ jobs:
           playwright install chromium
 
       - name: Scrape route
-        run: python flight_scraper.py -f "${{ github.event.client_payload.origin }}" -t "${{ github.event.client_payload.destination }}" -d "${{ github.event.client_payload.date }}" --save-db
+        run: python ixigo_scraper.py -f "${{ github.event.client_payload.origin }}" -t "${{ github.event.client_payload.destination }}" -d "${{ github.event.client_payload.date }}" --save-db
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}

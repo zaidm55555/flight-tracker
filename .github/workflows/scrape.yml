@@ -24,6 +24,6 @@ jobs:
           playwright install-deps chromium
 
       - name: Run scraper (all routes)
-        run: python flight_scraper.py --all --save-db
+        run: python ixigo_scraper.py --all
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
