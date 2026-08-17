@@ -299,6 +299,7 @@ body {
 }
 .badge.active { background: var(--success-bg); color: var(--success); }
 .badge.paused { background: var(--warning-bg); color: var(--warning); }
+.badge-expired { background: var(--danger-bg); color: var(--danger); }
 
 .route-meta {
   display: flex; align-items: center; gap: 10px; margin-top: 12px;
@@ -797,6 +798,13 @@ body {
 .manage-body .back-link { margin-bottom: 16px; }
 .manage-body h1 { font-size: 1.5rem; color: var(--ink); margin-bottom: 4px; font-weight: 800; letter-spacing: -0.4px; }
 .manage-body .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; }
+.route-section { margin-bottom: 20px; }
+.route-section-title {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px; padding-left: 4px;
+}
+.route-section-title-expired { color: var(--danger); opacity: 0.7; }
+.route-section-expired { margin-top: 8px; padding-top: 16px; border-top: 1px dashed var(--border-strong); }
 .manage-body .route-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -822,6 +830,8 @@ body {
 .manage-body .btn-action.btn-pause { color: var(--warning); border-color: var(--warning); }
 .manage-body .btn-action.btn-resume { color: var(--success); border-color: var(--success); }
 .manage-body .btn-action.btn-del { color: var(--danger); border-color: var(--danger); }
+.manage-body .route-card-expired { opacity: 0.65; }
+.manage-body .route-card-expired:hover { opacity: 1; }
 
 /* ---------- Admin ---------- */
 .admin-body .container { max-width: 640px; }

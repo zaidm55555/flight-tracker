@@ -188,6 +188,8 @@ def normalize_added_at(added):
 def add_route_meta(r):
     r["_id"] = str(r["_id"])
     route_id = f"{r['origin']}_{r['destination']}_{r['date']}"
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    r["is_expired"] = r.get("date", "") < today
     r["flight_count"] = 0
     if flights_col is not None:
         tracked = r.get("tracked_flight_ids") or []
