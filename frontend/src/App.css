@@ -805,6 +805,9 @@ body {
 }
 .route-section-title-expired { color: var(--danger); opacity: 0.7; }
 .route-section-expired { margin-top: 8px; padding-top: 16px; border-top: 1px dashed var(--border-strong); }
+.route-card-expired { opacity: 0.65; cursor: default !important; }
+.route-card-expired:hover { opacity: 1; }
+.route-section-expired .route-actions { display: flex; align-items: center; gap: 6px; }
 .manage-body .route-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -830,8 +833,6 @@ body {
 .manage-body .btn-action.btn-pause { color: var(--warning); border-color: var(--warning); }
 .manage-body .btn-action.btn-resume { color: var(--success); border-color: var(--success); }
 .manage-body .btn-action.btn-del { color: var(--danger); border-color: var(--danger); }
-.manage-body .route-card-expired { opacity: 0.65; }
-.manage-body .route-card-expired:hover { opacity: 1; }
 
 /* ---------- Admin ---------- */
 .admin-body .container { max-width: 640px; }

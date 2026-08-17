@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Spinner from '../components/Spinner'
 import PlaneMark from '../components/PlaneMark'
+import { TrashIcon } from '../components/Icons'
+import { deleteRoute } from '../api'
 
 export default function Home({ routes, reloadRoutes }) {
   const [refreshing, setRefreshing] = useState(true)
+  const [deletingId, setDeletingId] = useState(null)
   const loadingRoutes = refreshing || routes === null
 
   useEffect(() => {
@@ -13,6 +16,16 @@ export default function Home({ routes, reloadRoutes }) {
     Promise.resolve(reloadRoutes()).finally(() => { if (mounted) setRefreshing(false) })
     return () => { mounted = false }
   }, [reloadRoutes])
+
+  async function handleDelete(id) {
+    if (!confirm('Delete this route from your tracking?')) return
+    setDeletingId(id)
+    try {
+      await deleteRoute(id)
+      reloadRoutes()
+    } catch {}
+    setDeletingId(null)
+  }
 
   return (
     <div className="container">
@@ -101,6 +114,10 @@ export default function Home({ routes, reloadRoutes }) {
                     </div>
                     <div className="route-actions">
                       <span className="badge badge-expired">expired</span>
+                      <button className="btn-action btn-del" onClick={(e) => { e.preventDefault(); handleDelete(r._id) }} disabled={deletingId === r._id} title="Delete route" aria-label="Delete route" style={{ marginLeft: 6 }}>
+                        {deletingId === r._id && <span className="btn-spinner" />}
+                        {deletingId === r._id ? '' : <TrashIcon />}
+                      </button>
                     </div>
                   </div>
                   <div className="route-meta">
