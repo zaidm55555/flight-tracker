@@ -339,6 +339,10 @@ def search():
             {"origin": o, "destination": d, "date": dt, "status": "active"}
         ) if routes_col is not None else None
         scraped = bool(route2 and (route2.get("last_scraped_at") or route2.get("scrape_count", 0) > 0))
+        never_scraped = route2 and not route2.get("last_scraped_at") and not route2.get("scrape_count", 0)
+        is_expired = dt < datetime.utcnow().strftime("%Y-%m-%d")
+        if never_scraped and not is_expired:
+            return jsonify({"pending_scrape": True})
         return jsonify({"flights": [], "scraped": scraped, "selection_done": selection_done})
     if tracked_ids and request.args.get("all") != "1":
         tracked_set = set(tracked_ids)
