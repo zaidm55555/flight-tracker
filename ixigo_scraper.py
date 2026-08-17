@@ -512,6 +512,24 @@ def main():
     print(f"\n[+] Total flights extracted: {len(flights)}")
     display_terminal_table(flights)
 
+    if flights and args.save_db:
+        for f in flights:
+            f["route_id"] = f"{args.origin.upper()}_{args.destination.upper()}_{args.date}"
+        purge_route_data(args.origin, args.destination, args.date)
+        save_to_mongodb(flights)
+        today_str = datetime.utcnow().strftime("%Y-%m-%d")
+        if args.date >= today_str:
+            client, col = get_mongo_collection("tracked_routes")
+            if col is not None:
+                col.update_many(
+                    {"origin": args.origin.upper(), "destination": args.destination.upper(),
+                     "date": args.date, "status": "active"},
+                    {"$set": {"last_scraped_at": datetime.utcnow().isoformat() + "Z"},
+                     "$inc": {"scrape_count": 1},
+                     "$unset": {"pending_scrape": "", "pending_scrape_at": ""}}
+                )
+                client.close()
+
     timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
     route = f"{args.origin.upper()}_{args.destination.upper()}_{args.date}"
 

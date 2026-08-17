@@ -329,6 +329,14 @@ def search():
         {"$group": {"_id": "$flight_id", "doc": {"$first": "$$ROOT"}}}
     ]
     flights = [r["doc"] for r in (flights_col.aggregate(pipe) if flights_col is not None else [])]
+    if flights:
+        if tracked_ids and request.args.get("all") != "1":
+            tracked_set = set(tracked_ids)
+            flights = [f for f in flights if f.get("flight_id") in tracked_set]
+        for f in flights:
+            f.pop("_id", None)
+        flights.sort(key=lambda f: f.get("price_numeric", 0))
+        return jsonify({"flights": flights, "scraped": True, "selection_done": selection_done})
     if not flights:
         pending = routes_col.find_one(
             {"origin": o, "destination": d, "date": dt, "status": "active", "pending_scrape": True}
@@ -338,19 +346,12 @@ def search():
         route2 = routes_col.find_one(
             {"origin": o, "destination": d, "date": dt, "status": "active"}
         ) if routes_col is not None else None
-        scraped = bool(route2 and (route2.get("last_scraped_at") or route2.get("scrape_count", 0) > 0))
         never_scraped = route2 and not route2.get("last_scraped_at") and not route2.get("scrape_count", 0)
         is_expired = dt < datetime.utcnow().strftime("%Y-%m-%d")
         if never_scraped and not is_expired:
             return jsonify({"pending_scrape": True})
+        scraped = bool(route2 and (route2.get("last_scraped_at") or route2.get("scrape_count", 0) > 0))
         return jsonify({"flights": [], "scraped": scraped, "selection_done": selection_done})
-    if tracked_ids and request.args.get("all") != "1":
-        tracked_set = set(tracked_ids)
-        flights = [f for f in flights if f.get("flight_id") in tracked_set]
-    for f in flights:
-        f.pop("_id", None)
-    flights.sort(key=lambda f: f.get("price_numeric", 0))
-    return jsonify({"flights": flights, "scraped": True, "selection_done": selection_done})
 
 @app.route("/api/history")
 def history():
