@@ -805,9 +805,33 @@ body {
 }
 .route-section-title-expired { color: var(--danger); opacity: 0.7; }
 .route-section-expired { margin-top: 8px; padding-top: 16px; border-top: 1px dashed var(--border-strong); }
-.route-card-expired { opacity: 0.65; cursor: default !important; }
-.route-card-expired:hover { opacity: 1; }
-.route-section-expired .route-actions { display: flex; align-items: center; gap: 6px; }
+.expired-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.expired-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.btn-expired-clear {
+  padding: 6px 14px; border-radius: 10px; font-size: 0.76rem; font-weight: 600;
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--danger);
+  cursor: pointer; transition: background 0.15s, transform 0.1s; display: flex; align-items: center; gap: 5px;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-expired-clear:active { transform: scale(0.95); }
+.btn-expired-clear:hover { background: #fef2f2; }
+.expired-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 14px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 8px; opacity: 0.7;
+  animation: fadeUp 0.4s ease both;
+}
+.expired-card-deleting { opacity: 0.35; pointer-events: none; }
+.expired-card-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.expired-date { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+.btn-expired-remove {
+  padding: 5px 12px; border-radius: 8px; font-size: 0.74rem; font-weight: 600;
+  border: 1px solid var(--danger); background: transparent; color: var(--danger);
+  cursor: pointer; transition: background 0.15s, transform 0.1s; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-expired-remove:active { transform: scale(0.95); }
+.btn-expired-remove:hover { background: #fef2f2; }
 .manage-body .route-card {
   background: var(--surface);
   border: 1px solid var(--border);

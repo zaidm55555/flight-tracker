@@ -8,6 +8,7 @@ import { deleteRoute } from '../api'
 export default function Home({ routes, reloadRoutes }) {
   const [refreshing, setRefreshing] = useState(true)
   const [deletingId, setDeletingId] = useState(null)
+  const [deletingAllExpired, setDeletingAllExpired] = useState(false)
   const loadingRoutes = refreshing || routes === null
 
   useEffect(() => {
@@ -18,13 +19,23 @@ export default function Home({ routes, reloadRoutes }) {
   }, [reloadRoutes])
 
   async function handleDelete(id) {
-    if (!confirm('Delete this route from your tracking?')) return
     setDeletingId(id)
     try {
       await deleteRoute(id)
       reloadRoutes()
     } catch {}
     setDeletingId(null)
+  }
+
+  async function handleDeleteAllExpired() {
+    const expired = routes.filter(r => r.is_expired)
+    if (!confirm(`Remove ${expired.length} expired route${expired.length > 1 ? 's' : ''}?`)) return
+    setDeletingAllExpired(true)
+    for (const r of expired) {
+      try { await deleteRoute(r._id) } catch {}
+    }
+    reloadRoutes()
+    setDeletingAllExpired(false)
   }
 
   return (
@@ -99,32 +110,32 @@ export default function Home({ routes, reloadRoutes }) {
           )}
           {routes.filter(r => r.is_expired).length > 0 && (
             <div className="route-section route-section-expired">
-              <h2 className="route-section-title route-section-title-expired">Expired</h2>
+              <div className="expired-header">
+                <div>
+                  <h2 className="route-section-title route-section-title-expired">Expired</h2>
+                  <p className="expired-sub">Past dates can no longer be tracked</p>
+                </div>
+                <button className="btn-expired-clear" onClick={handleDeleteAllExpired} disabled={deletingAllExpired}>
+                  {deletingAllExpired ? <span className="btn-spinner" /> : 'Remove all'}
+                </button>
+              </div>
               {routes.filter(r => r.is_expired).map((r, i) => (
                 <div
                   key={r._id}
-                  className="card route-card-link route-card-expired"
+                  className={`expired-card${deletingId === r._id ? ' expired-card-deleting' : ''}`}
                   style={{ animationDelay: `${i * 60}ms` }}
                 >
-                  <div className="route-header">
-                    <div className="route-cities">
-                      <span className="code-chip">{r.origin}</span>
-                      <span className="plane-arrow">✈</span>
-                      <span className="code-chip">{r.destination}</span>
+                  <div className="expired-card-left">
+                    <div className="route-cities" style={{ fontSize: '0.9rem' }}>
+                      <span className="code-chip" style={{ fontSize: '0.85rem', padding: '2px 8px' }}>{r.origin}</span>
+                      <span className="plane-arrow" style={{ fontSize: '0.85rem' }}>✈</span>
+                      <span className="code-chip" style={{ fontSize: '0.85rem', padding: '2px 8px' }}>{r.destination}</span>
                     </div>
-                    <div className="route-actions">
-                      <span className="badge badge-expired">expired</span>
-                      <button className="btn-action btn-del" onClick={(e) => { e.preventDefault(); handleDelete(r._id) }} disabled={deletingId === r._id} title="Delete route" aria-label="Delete route" style={{ marginLeft: 6 }}>
-                        {deletingId === r._id && <span className="btn-spinner" />}
-                        {deletingId === r._id ? '' : <TrashIcon />}
-                      </button>
-                    </div>
+                    <span className="expired-date">{r.date}</span>
                   </div>
-                  <div className="route-meta">
-                    <span>{r.date}</span>
-                    <span>·</span>
-                    <span>Flights: <span className="count">{r.flight_count || 0}</span></span>
-                  </div>
+                  <button className="btn-expired-remove" onClick={() => handleDelete(r._id)} disabled={deletingId === r._id} aria-label="Remove route">
+                    {deletingId === r._id ? <span className="btn-spinner" /> : 'Remove'}
+                  </button>
                 </div>
               ))}
             </div>
