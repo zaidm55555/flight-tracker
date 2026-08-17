@@ -399,12 +399,7 @@ def scrape_all_routes():
 
 
 def purge_route_data(origin, dest, date):
-    """Remove old-source records for a route after a successful ixigo scrape.
-
-    Google-flights records use different flight_ids than ixigo, so keeping them
-    would mix sources in /api/search and break tracked_flight_ids matching.
-    Reset the route's flight selection so users re-pick from the ixigo list.
-    """
+    """Remove old flight price records for a route before inserting fresh scrape data."""
     mongo_uri = os.getenv("MONGODB_URI")
     if not mongo_uri or not HAS_PYMONGO:
         return
@@ -415,12 +410,6 @@ def purge_route_data(origin, dest, date):
             {"origin": origin, "destination": dest, "date": date}
         ).deleted_count
         print(f"[+] Purged {del_count} old flight record(s) for {origin} → {dest} on {date}")
-
-        routes_col = client["flight_db"]["tracked_routes"]
-        routes_col.update_many(
-            {"origin": origin, "destination": dest, "date": date},
-            {"$set": {"tracked_flight_ids": [], "selection_done": False}}
-        )
     except Exception as err:
         print(f"[!] Failed to purge route data: {err}")
     finally:

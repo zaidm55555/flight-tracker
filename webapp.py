@@ -332,7 +332,17 @@ def search():
     if flights:
         if tracked_ids and request.args.get("all") != "1":
             tracked_set = set(tracked_ids)
-            flights = [f for f in flights if f.get("flight_id") in tracked_set]
+            matched = [f for f in flights if f.get("flight_id") in tracked_set]
+            if matched:
+                flights = matched
+            else:
+                tracked_ids = []
+                selection_done = False
+                if route and routes_col is not None:
+                    routes_col.update_one(
+                        {"_id": route["_id"]},
+                        {"$set": {"tracked_flight_ids": [], "selection_done": False}}
+                    )
         for f in flights:
             f.pop("_id", None)
         flights.sort(key=lambda f: f.get("price_numeric", 0))
