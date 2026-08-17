@@ -42,45 +42,77 @@ export default function Home({ routes, reloadRoutes }) {
 
       {loadingRoutes ? (
         <Spinner text="Loading routes..." />
-      ) : routes.filter(r => r.status === 'active').length > 0 ? (
-        routes.filter(r => r.status === 'active').map((r, i) => (
-          <Link
-            key={r._id}
-            to={`/search?from=${r.origin}&to=${r.destination}&date=${r.date}`}
-            className="card route-card-link"
-            style={{ animationDelay: `${i * 60}ms` }}
-          >
-            <div className="route-header">
-              <div className="route-cities">
-                <span className="code-chip">{r.origin}</span>
-                <span className="plane-arrow">✈</span>
-                <span className="code-chip">{r.destination}</span>
-              </div>
-              <div className="route-actions">
-                <span className={`badge ${r.status}`}>{r.status}</span>
-                <span className="chevron">›</span>
-              </div>
-            </div>
-            <div className="route-meta">
-              <span>{r.date}</span>
-              <span>·</span>
-              <span>Flights: <span className="count">{r.flight_count || 0}</span></span>
-              {r.last_scraped_at && (
-                <>
+      ) : routes.length > 0 ? (
+        <>
+          {routes.filter(r => !r.is_expired).length > 0 && (
+            routes.filter(r => !r.is_expired).map((r, i) => (
+              <Link
+                key={r._id}
+                to={`/search?from=${r.origin}&to=${r.destination}&date=${r.date}`}
+                className="card route-card-link"
+                style={{ animationDelay: `${i * 60}ms` }}
+              >
+                <div className="route-header">
+                  <div className="route-cities">
+                    <span className="code-chip">{r.origin}</span>
+                    <span className="plane-arrow">✈</span>
+                    <span className="code-chip">{r.destination}</span>
+                  </div>
+                  <div className="route-actions">
+                    <span className={`badge ${r.status}`}>{r.status}</span>
+                    <span className="chevron">›</span>
+                  </div>
+                </div>
+                <div className="route-meta">
+                  <span>{r.date}</span>
                   <span>·</span>
-                  <span className="live-dot" />
-                  <span>Last: {
-                    (() => {
-                      try {
-                        return new Date(r.last_scraped_at.replace('Z', '+00:00')).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-                      } catch { return r.last_scraped_at }
-                    })()
-                  }</span>
-                </>
-              )}
+                  <span>Flights: <span className="count">{r.flight_count || 0}</span></span>
+                  {r.last_scraped_at && (
+                    <>
+                      <span>·</span>
+                      <span className="live-dot" />
+                      <span>Last: {
+                        (() => {
+                          try {
+                            return new Date(r.last_scraped_at.replace('Z', '+00:00')).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                          } catch { return r.last_scraped_at }
+                        })()
+                      }</span>
+                    </>
+                  )}
+                </div>
+              </Link>
+            ))
+          )}
+          {routes.filter(r => r.is_expired).length > 0 && (
+            <div className="route-section route-section-expired">
+              <h2 className="route-section-title route-section-title-expired">Expired</h2>
+              {routes.filter(r => r.is_expired).map((r, i) => (
+                <div
+                  key={r._id}
+                  className="card route-card-link route-card-expired"
+                  style={{ animationDelay: `${i * 60}ms` }}
+                >
+                  <div className="route-header">
+                    <div className="route-cities">
+                      <span className="code-chip">{r.origin}</span>
+                      <span className="plane-arrow">✈</span>
+                      <span className="code-chip">{r.destination}</span>
+                    </div>
+                    <div className="route-actions">
+                      <span className="badge badge-expired">expired</span>
+                    </div>
+                  </div>
+                  <div className="route-meta">
+                    <span>{r.date}</span>
+                    <span>·</span>
+                    <span>Flights: <span className="count">{r.flight_count || 0}</span></span>
+                  </div>
+                </div>
+              ))}
             </div>
-          </Link>
-        ))
+          )}
+        </>
       ) : (
         <div className="empty">
           <p>No routes being tracked yet.<br />Add your first route to start monitoring flight prices.</p>
