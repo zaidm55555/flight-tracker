@@ -352,11 +352,17 @@ def scrape_all_routes():
     total_flights = 0
     failed = []
 
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+
     for route in routes:
         origin = route["origin"]
         dest = route["destination"]
         date = route["date"]
         route_id = f"{origin}_{dest}_{date}"
+
+        if date < today:
+            print(f"[!] Skipping {origin} → {dest} on {date} (date is in the past)")
+            continue
 
         print(f"\n{'='*50}")
         print(f" Scraping {origin} → {dest} on {date}")
@@ -388,6 +394,8 @@ def scrape_all_routes():
     if failed:
         print(f"[!] FAILED routes (0 flights): {', '.join(failed)}")
         sys.exit(1)
+    elif total_flights == 0 and not routes:
+        print("[!] No active routes with future dates found to scrape.")
 
 
 def purge_route_data(origin, dest, date):
@@ -489,6 +497,10 @@ def main():
     print(f" Route   : {args.origin.upper()} ➔ {args.destination.upper()}")
     print(f" Date    : {args.date}")
     print(f"==================================================")
+
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    if args.date < today:
+        print(f"\n[!] WARNING: {args.date} is in the past. ixigo may not return results for past dates.")
 
     scraper = IxigoScraper(headless=not args.headed)
     flights = scraper.scrape(
