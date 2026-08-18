@@ -384,7 +384,6 @@ def scrape_all_routes():
         display_terminal_table(flights)
         total_flights += len(flights)
 
-        purge_route_data(origin, dest, date)
         save_to_mongodb(flights)
 
         update_route_metadata(route, len(flights))
@@ -397,23 +396,6 @@ def scrape_all_routes():
     elif total_flights == 0 and not routes:
         print("[!] No active routes with future dates found to scrape.")
 
-
-def purge_route_data(origin, dest, date):
-    """Remove old flight price records for a route before inserting fresh scrape data."""
-    mongo_uri = os.getenv("MONGODB_URI")
-    if not mongo_uri or not HAS_PYMONGO:
-        return
-    client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
-    try:
-        flight_col = client["flight_db"]["flight_prices"]
-        del_count = flight_col.delete_many(
-            {"origin": origin, "destination": dest, "date": date}
-        ).deleted_count
-        print(f"[+] Purged {del_count} old flight record(s) for {origin} → {dest} on {date}")
-    except Exception as err:
-        print(f"[!] Failed to purge route data: {err}")
-    finally:
-        client.close()
 
 
 def update_route_metadata(route, record_count):
@@ -504,7 +486,6 @@ def main():
     if flights and args.save_db:
         for f in flights:
             f["route_id"] = f"{args.origin.upper()}_{args.destination.upper()}_{args.date}"
-        purge_route_data(args.origin, args.destination, args.date)
         save_to_mongodb(flights)
         today_str = datetime.utcnow().strftime("%Y-%m-%d")
         if args.date >= today_str:
